@@ -4,7 +4,7 @@ import os
 from PyQt6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, 
                             QSplitter, QTreeWidget, QTreeWidgetItem, QTabWidget,
                             QMenuBar, QMenu, QStatusBar, QMessageBox, QFileDialog,
-                            QToolBar, QLabel, QPushButton)
+                            QToolBar, QLabel, QPushButton, QDialog)
 from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtGui import QAction, QIcon, QKeySequence
 
@@ -44,8 +44,8 @@ class MainWindow(QMainWindow):
         self.create_status_bar()
         self.load_session()
         
-        # Apply theme
-        self.theme_manager.apply_theme(self, "light")
+        # Detect and apply system theme
+        self.detect_and_apply_theme()
     
     def init_ui(self):
         """Initialize user interface"""
@@ -184,7 +184,7 @@ class MainWindow(QMainWindow):
     def connect_database(self):
         """Open connection dialog"""
         dialog = ConnectionDialog(self)
-        if dialog.exec():
+        if dialog.exec() == QDialog.DialogCode.Accepted:
             db_path, password = dialog.get_connection_info()
             if self.db_connection.connect(db_path, password):
                 self.connection_label.setText(f"Connected: {os.path.basename(db_path)}")
@@ -298,7 +298,7 @@ class MainWindow(QMainWindow):
             return
         
         dialog = TableEditorDialog(self.schema_manager, self)
-        if dialog.exec():
+        if dialog.exec() == QDialog.DialogCode.Accepted:
             self.refresh_schema()
     
     def edit_table(self):
@@ -308,7 +308,7 @@ class MainWindow(QMainWindow):
             return
         
         dialog = TableEditorDialog(self.schema_manager, self, self.current_table)
-        if dialog.exec():
+        if dialog.exec() == QDialog.DialogCode.Accepted:
             self.refresh_schema()
     
     def drop_table(self):
@@ -358,6 +358,21 @@ class MainWindow(QMainWindow):
     def change_theme(self, theme_name: str):
         """Change application theme"""
         self.theme_manager.apply_theme(self, theme_name)
+    
+    def detect_and_apply_theme(self):
+        """Detect system theme and apply appropriate theme"""
+        from PyQt6.QtGui import QPalette
+        from PyQt6.QtWidgets import QApplication
+        
+        # Check if system is in dark mode
+        palette = QApplication.palette()
+        window_color = palette.color(QPalette.ColorRole.Window)
+        
+        # If window background is dark, use dark theme
+        if window_color.lightness() < 128:
+            self.theme_manager.apply_theme(self, "dark")
+        else:
+            self.theme_manager.apply_theme(self, "light")
     
     def load_session(self):
         """Load previous session"""

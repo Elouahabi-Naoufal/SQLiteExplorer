@@ -18,20 +18,56 @@ class DatabaseConnection:
         try:
             if self.connection:
                 self.disconnect()
-                
-            self.connection = sqlite3.connect(db_path)
-            self.connection.row_factory = sqlite3.Row
-            self.connection.execute("PRAGMA foreign_keys = ON")
-            self.database_path = db_path
             
-            if password:
-                self.connection.execute(f"PRAGMA key = '{password}'")
-                
-            self.logger.log(f"Connected to database: {db_path}")
-            return True
+            # First try without password
+            if not password:
+                try:
+                    self.connection = sqlite3.connect(db_path)
+                    self.connection.row_factory = sqlite3.Row
+                    self.connection.execute("PRAGMA foreign_keys = ON")
+                    self.connection.execute("SELECT name FROM sqlite_master LIMIT 1")
+                    self.database_path = db_path
+                    self.logger.log(f"Connected to database: {db_path}")
+                    return True
+                except Exception as e:
+                    self.logger.log(f"Standard connection failed: {str(e)}", "WARNING")
+                    if self.connection:
+                        self.connection.close()
+                        self.connection = None
+            
+            # Try with password or if standard failed
+            if password or self.connection is None:
+                try:
+                    import pysqlcipher3.dbapi2 as sqlcipher
+                    self.connection = sqlcipher.connect(db_path)
+                    if password:
+                        self.connection.execute(f"PRAGMA key = '{password}'")
+                    self.connection.row_factory = sqlite3.Row
+                    self.connection.execute("PRAGMA foreign_keys = ON")
+                    self.connection.execute("SELECT name FROM sqlite_master LIMIT 1")
+                    self.database_path = db_path
+                    self.logger.log(f"Connected to encrypted database: {db_path}")
+                    return True
+                except ImportError:
+                    self.logger.log("SQLCipher not available", "ERROR")
+                    return False
+                except Exception as e:
+                    self.logger.log(f"Encrypted connection failed: {str(e)}", "ERROR")
+                    if self.connection:
+                        self.connection.close()
+                        self.connection = None
+                    return False
+            
+            return False
             
         except Exception as e:
             self.logger.log(f"Connection failed: {str(e)}", "ERROR")
+            if self.connection:
+                try:
+                    self.connection.close()
+                except:
+                    pass
+                self.connection = None
             return False
     
     def disconnect(self) -> None:

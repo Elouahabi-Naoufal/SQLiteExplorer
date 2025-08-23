@@ -15,7 +15,6 @@ def main():
     app = QApplication(sys.argv)
     app.setApplicationName("SQLite Manager")
     app.setApplicationVersion("1.0.0")
-    app.setAttribute(Qt.ApplicationAttribute.AA_UseHighDpiPixmaps)
     
     # Set application style
     app.setStyle('Fusion')
