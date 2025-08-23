@@ -69,7 +69,7 @@ class TableView(QWidget):
         toolbar_layout.addWidget(self.add_btn)
         
         self.edit_btn = QPushButton("Edit Record")
-        self.edit_btn.clicked.connect(self.edit_record)
+        self.edit_btn.clicked.connect(self.edit_full_record)
         toolbar_layout.addWidget(self.edit_btn)
         
         self.delete_btn = QPushButton("Delete Record")
@@ -97,7 +97,8 @@ class TableView(QWidget):
         self.table_widget.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
         self.table_widget.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.table_widget.customContextMenuRequested.connect(self.show_context_menu)
-        self.table_widget.cellDoubleClicked.connect(self.edit_record)
+        self.table_widget.itemClicked.connect(self.on_cell_clicked)
+        self.table_widget.itemChanged.connect(self.on_cell_changed)
         layout.addWidget(self.table_widget)
         
         # Pagination
@@ -201,7 +202,7 @@ class TableView(QWidget):
                     value = ''
                 
                 item = QTableWidgetItem(str(value))
-                item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEditable)  # Read-only
+                item.setFlags(item.flags() | Qt.ItemFlag.ItemIsEditable)  # Editable
                 self.table_widget.setItem(row_idx, col_idx, item)
         
         # Auto-resize columns
@@ -252,21 +253,7 @@ class TableView(QWidget):
     def add_record(self):
         """Add new record"""
         from .dialogs.record_editor import RecordEditorDialog
-        dialog = RecordEditorDialog(self.table_schema, self.db_operations, self.table_name, self)
-        if dialog.exec() == dialog.DialogCode.Accepted:
-            self.refresh_data()
-            self.record_changed.emit()
-    
-    def edit_record(self):
-        """Edit selected record"""
-        current_row = self.table_widget.currentRow()
-        if current_row < 0:
-            QMessageBox.warning(self, "Warning", "Please select a record to edit")
-            return
-        
-        record = self.records[current_row]
-        from .dialogs.record_editor import RecordEditorDialog
-        dialog = RecordEditorDialog(self.table_schema, self.db_operations, self.table_name, self, record)
+        dialog = RecordEditorDialog(self.table_name, self.table_schema, self.db_operations, self)
         if dialog.exec() == dialog.DialogCode.Accepted:
             self.refresh_data()
             self.record_changed.emit()
@@ -350,6 +337,60 @@ class TableView(QWidget):
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Failed to open visualization: {str(e)}")
     
+    def on_cell_clicked(self, item):
+        """Handle cell click for inline editing"""
+        self.table_widget.editItem(item)
+    
+    def on_cell_changed(self, item):
+        """Handle cell value change and save to database"""
+        row = item.row()
+        col = item.column()
+        
+        if row >= len(self.records) or col >= len(self.table_schema):
+            return
+        
+        record = self.records[row]
+        column_name = self.table_schema[col]['name']
+        new_value = item.text()
+        
+        # Build where clause using primary key or all columns
+        pk_columns = [c['name'] for c in self.table_schema if c.get('pk')]
+        
+        if pk_columns:
+            where_parts = [f"{col} = ?" for col in pk_columns]
+            where_clause = " AND ".join(where_parts)
+            where_params = [record[col] for col in pk_columns]
+        else:
+            where_parts = [f"{c['name']} = ?" for c in self.table_schema]
+            where_clause = " AND ".join(where_parts)
+            where_params = [record[c['name']] for c in self.table_schema]
+        
+        # Update database
+        update_data = {column_name: new_value}
+        
+        if self.db_operations.update_record(self.table_name, update_data, where_clause, where_params):
+            # Update local record
+            self.records[row][column_name] = new_value
+            self.record_changed.emit()
+        else:
+            # Revert change if update failed
+            item.setText(str(record[column_name]))
+            QMessageBox.critical(self, "Error", "Failed to update record")
+    
+    def edit_full_record(self):
+        """Edit full record in dialog"""
+        current_row = self.table_widget.currentRow()
+        if current_row < 0:
+            QMessageBox.warning(self, "Warning", "Please select a record to edit")
+            return
+        
+        record = self.records[current_row]
+        from .dialogs.record_editor import RecordEditorDialog
+        dialog = RecordEditorDialog(self.table_name, self.table_schema, self.db_operations, self, record)
+        if dialog.exec() == dialog.DialogCode.Accepted:
+            self.refresh_data()
+            self.record_changed.emit()
+    
     def show_context_menu(self, position):
         """Show context menu"""
         menu = QMenu(self)
@@ -358,8 +399,8 @@ class TableView(QWidget):
         add_action.triggered.connect(self.add_record)
         
         if self.table_widget.itemAt(position):
-            edit_action = menu.addAction("Edit Record")
-            edit_action.triggered.connect(self.edit_record)
+            edit_record_action = menu.addAction("Edit Full Record")
+            edit_record_action.triggered.connect(self.edit_full_record)
             
             delete_action = menu.addAction("Delete Record")
             delete_action.triggered.connect(self.delete_record)

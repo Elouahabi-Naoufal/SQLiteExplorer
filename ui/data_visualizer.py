@@ -3,10 +3,20 @@
 from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QPushButton, 
                             QComboBox, QLabel, QMessageBox, QSplitter)
 from PyQt6.QtCore import Qt
-import matplotlib.pyplot as plt
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.figure import Figure
-import pandas as pd
+try:
+    import matplotlib
+    matplotlib.use('Qt5Agg')
+    import matplotlib.pyplot as plt
+    from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+    from matplotlib.figure import Figure
+    import pandas as pd
+    MATPLOTLIB_AVAILABLE = True
+except ImportError:
+    MATPLOTLIB_AVAILABLE = False
+    plt = None
+    FigureCanvas = None
+    Figure = None
+    pd = None
 from typing import List, Dict, Any
 
 class DataVisualizerWidget(QWidget):
@@ -14,14 +24,29 @@ class DataVisualizerWidget(QWidget):
     
     def __init__(self, data: List[Dict[str, Any]], table_name: str):
         super().__init__()
+        
+        if not MATPLOTLIB_AVAILABLE:
+            self.show_error()
+            return
+            
         self.data = data
         self.table_name = table_name
         self.df = pd.DataFrame(data) if data else pd.DataFrame()
         
         self.init_ui()
+    
+    def show_error(self):
+        """Show error message when matplotlib is not available"""
+        layout = QVBoxLayout(self)
+        error_label = QLabel("Visualization requires matplotlib and pandas.\nInstall with: pip install matplotlib pandas")
+        error_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(error_label)
         
     def init_ui(self):
         """Initialize user interface"""
+        if not MATPLOTLIB_AVAILABLE:
+            return
+            
         layout = QVBoxLayout(self)
         
         # Controls
@@ -56,17 +81,21 @@ class DataVisualizerWidget(QWidget):
         
     def populate_columns(self):
         """Populate column dropdowns"""
-        if self.df.empty:
+        if not MATPLOTLIB_AVAILABLE or self.df.empty:
             return
             
         columns = list(self.df.columns)
+        # Convert columns to numeric where possible
+        for col in columns:
+            self.df[col] = pd.to_numeric(self.df[col], errors='ignore')
+        
         numeric_columns = list(self.df.select_dtypes(include=['number']).columns)
         
         self.x_column.clear()
         self.y_column.clear()
         
         self.x_column.addItems(columns)
-        self.y_column.addItems(numeric_columns)
+        self.y_column.addItems(numeric_columns if numeric_columns else columns)
         
     def generate_chart(self):
         """Generate selected chart type"""
@@ -87,28 +116,47 @@ class DataVisualizerWidget(QWidget):
         
         try:
             if chart_type == "Bar Chart":
-                self.df.groupby(x_col)[y_col].sum().plot(kind='bar', ax=ax)
+                if pd.api.types.is_numeric_dtype(self.df[y_col]):
+                    self.df.groupby(x_col)[y_col].sum().plot(kind='bar', ax=ax)
+                else:
+                    self.df[x_col].value_counts().plot(kind='bar', ax=ax)
                 ax.set_title(f"{y_col} by {x_col}")
                 
             elif chart_type == "Line Chart":
-                self.df.plot(x=x_col, y=y_col, kind='line', ax=ax)
-                ax.set_title(f"{y_col} over {x_col}")
+                if pd.api.types.is_numeric_dtype(self.df[y_col]):
+                    self.df.plot(x=x_col, y=y_col, kind='line', ax=ax, marker='o')
+                    ax.set_title(f"{y_col} over {x_col}")
+                else:
+                    QMessageBox.warning(self, "Warning", "Line chart requires numeric Y column")
+                    return
                 
             elif chart_type == "Pie Chart":
-                data_grouped = self.df.groupby(x_col)[y_col].sum()
+                if pd.api.types.is_numeric_dtype(self.df[y_col]):
+                    data_grouped = self.df.groupby(x_col)[y_col].sum()
+                else:
+                    data_grouped = self.df[x_col].value_counts()
                 ax.pie(data_grouped.values, labels=data_grouped.index, autopct='%1.1f%%')
                 ax.set_title(f"{y_col} distribution by {x_col}")
                 
             elif chart_type == "Histogram":
-                self.df[y_col].hist(bins=20, ax=ax)
-                ax.set_title(f"Distribution of {y_col}")
-                ax.set_xlabel(y_col)
+                if pd.api.types.is_numeric_dtype(self.df[y_col]):
+                    self.df[y_col].hist(bins=20, ax=ax)
+                    ax.set_title(f"Distribution of {y_col}")
+                    ax.set_xlabel(y_col)
+                else:
+                    QMessageBox.warning(self, "Warning", "Histogram requires numeric column")
+                    return
                 
             elif chart_type == "Scatter Plot":
-                self.df.plot.scatter(x=x_col, y=y_col, ax=ax)
-                ax.set_title(f"{y_col} vs {x_col}")
-                
-            plt.tight_layout()
+                if pd.api.types.is_numeric_dtype(self.df[x_col]) and pd.api.types.is_numeric_dtype(self.df[y_col]):
+                    self.df.plot.scatter(x=x_col, y=y_col, ax=ax)
+                    ax.set_title(f"{y_col} vs {x_col}")
+                else:
+                    QMessageBox.warning(self, "Warning", "Scatter plot requires numeric columns")
+                    return
+            
+            ax.tick_params(axis='x', rotation=45)
+            self.figure.tight_layout()
             self.canvas.draw()
             
         except Exception as e:
