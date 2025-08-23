@@ -220,6 +220,21 @@ class MainWindow(QMainWindow):
                 table_item.setData(0, Qt.ItemDataRole.UserRole, {'type': 'table', 'name': table['name']})
                 print(f"DEBUG: Added table {table['name']}")
                 
+                # Add columns as child items
+                try:
+                    columns = self.schema_manager.get_table_schema(table['name'])
+                    for column in columns:
+                        col_text = f"{column['name']} ({column['type']})"
+                        if column.get('pk'):
+                            col_text += " PK"
+                        if column.get('notnull'):
+                            col_text += " NOT NULL"
+                        
+                        col_item = QTreeWidgetItem(table_item, [col_text])
+                        col_item.setData(0, Qt.ItemDataRole.UserRole, {'type': 'column', 'table': table['name'], 'column': column['name']})
+                except Exception as col_e:
+                    print(f"DEBUG: Failed to get columns for {table['name']}: {col_e}")
+                
         except Exception as e:
             print(f"DEBUG: Schema refresh failed: {e}")
             QMessageBox.critical(self, "Error", f"Failed to refresh schema: {str(e)}")

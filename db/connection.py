@@ -42,7 +42,7 @@ class DatabaseConnection:
                     self.connection = sqlcipher.connect(db_path)
                     if password:
                         self.connection.execute(f"PRAGMA key = '{password}'")
-                    self.connection.row_factory = sqlite3.Row
+                    # Don't set row_factory for SQLCipher - causes compatibility issues
                     self.connection.execute("PRAGMA foreign_keys = ON")
                     self.connection.execute("SELECT name FROM sqlite_master LIMIT 1")
                     self.database_path = db_path

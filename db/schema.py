@@ -26,7 +26,11 @@ class SchemaManager:
             
             tables = []
             for row in rows:
-                table_name = row[0] if isinstance(row, tuple) else row['name']
+                # Handle both tuple and Row objects
+                if hasattr(row, 'keys'):
+                    table_name = row['name']
+                else:
+                    table_name = row[0]
                 tables.append({
                     'name': table_name,
                     'type': 'table',
@@ -100,7 +104,24 @@ class SchemaManager:
                 return []
             
             cursor = conn.execute(f"PRAGMA table_info({table_name})")
-            return [dict(row) for row in cursor.fetchall()]
+            rows = cursor.fetchall()
+            
+            columns = []
+            for row in rows:
+                if hasattr(row, 'keys'):
+                    columns.append(dict(row))
+                else:
+                    # Handle tuple results from SQLCipher
+                    columns.append({
+                        'cid': row[0],
+                        'name': row[1],
+                        'type': row[2],
+                        'notnull': row[3],
+                        'dflt_value': row[4],
+                        'pk': row[5]
+                    })
+            
+            return columns
         except Exception as e:
             self.logger.log(f"Get table schema failed: {str(e)}", "ERROR")
             return []

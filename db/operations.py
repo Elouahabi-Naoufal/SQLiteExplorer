@@ -180,7 +180,22 @@ class DatabaseOperations:
                     sql += f" OFFSET {offset}"
             
             cursor = conn.execute(sql, params)
-            return [dict(row) for row in cursor.fetchall()]
+            rows = cursor.fetchall()
+            
+            # Get column names
+            column_names = [description[0] for description in cursor.description]
+            
+            # Convert to list of dictionaries
+            records = []
+            for row in rows:
+                if hasattr(row, 'keys'):
+                    records.append(dict(row))
+                else:
+                    # Handle tuple results from SQLCipher
+                    record = {column_names[i]: row[i] for i in range(len(column_names))}
+                    records.append(record)
+            
+            return records
             
         except Exception as e:
             self.logger.log(f"Get records failed: {str(e)}", "ERROR")
@@ -194,7 +209,7 @@ class DatabaseOperations:
             if not conn:
                 return 0
             
-            sql = f"SELECT COUNT(*) as count FROM {table_name}"
+            sql = f"SELECT COUNT(*) FROM {table_name}"
             params = []
             
             if where_clause:
@@ -204,7 +219,12 @@ class DatabaseOperations:
             
             cursor = conn.execute(sql, params)
             result = cursor.fetchone()
-            return result['count'] if result else 0
+            
+            if hasattr(result, 'keys'):
+                return result[0] if result else 0
+            else:
+                # Handle tuple results from SQLCipher
+                return result[0] if result else 0
             
         except Exception as e:
             self.logger.log(f"Count records failed: {str(e)}", "ERROR")
