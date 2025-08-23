@@ -19,6 +19,7 @@ from .dialogs.table_editor import TableEditorDialog
 from utils.backup import BackupManager
 from utils.session import SessionManager
 from utils.theme import ThemeManager
+from utils.query_manager import QueryManager
 
 class MainWindow(QMainWindow):
     """Main application window with split view layout"""
@@ -34,6 +35,7 @@ class MainWindow(QMainWindow):
         self.backup_manager = BackupManager()
         self.session_manager = SessionManager()
         self.theme_manager = ThemeManager()
+        self.query_manager = QueryManager()
         
         self.current_table = None
         self.open_tabs = {}
@@ -116,6 +118,11 @@ class MainWindow(QMainWindow):
         sql_action.setShortcut(QKeySequence("Ctrl+E"))
         sql_action.triggered.connect(self.open_sql_executor)
         edit_menu.addAction(sql_action)
+        
+        query_manager_action = QAction("&Query Manager...", self)
+        query_manager_action.setShortcut(QKeySequence("Ctrl+H"))
+        query_manager_action.triggered.connect(self.open_query_manager)
+        edit_menu.addAction(query_manager_action)
         
         # Table menu
         table_menu = menubar.addMenu("&Table")
@@ -375,6 +382,13 @@ class MainWindow(QMainWindow):
             'window_geometry': [self.x(), self.y(), self.width(), self.height()]
         }
         self.session_manager.save_session(session_data)
+    
+    def open_query_manager(self):
+        """Open query manager dialog"""
+        from .dialogs.query_manager_dialog import QueryManagerDialog
+        
+        dialog = QueryManagerDialog(self.query_manager, self)
+        dialog.exec()
     
     def closeEvent(self, event):
         """Handle application close"""

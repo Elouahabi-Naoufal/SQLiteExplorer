@@ -52,6 +52,20 @@ A full-featured desktop application for managing SQLite databases with complete 
    - Session management
    - Recent databases tracking
 
+8. **Data Visualization**
+   - Generate charts from table data
+   - Bar charts, line charts, pie charts
+   - Histograms and scatter plots
+   - Interactive chart generation
+   - Export visualizations
+
+9. **Query Management**
+   - Automatic query history tracking
+   - Save favorite queries with descriptions
+   - Quick access to recent queries
+   - Query execution statistics
+   - Organized query library
+
 ### GUI Features
 - **Split View Layout**: Schema tree on left, data tables on right
 - **Multi-tab Support**: Open multiple tables simultaneously
@@ -71,6 +85,8 @@ pip install -r requirements.txt
 ### Dependencies
 - PyQt6 >= 6.4.0
 - pycryptodome >= 3.17.0 (for SQLCipher support)
+- matplotlib >= 3.5.0 (for data visualization)
+- pandas >= 1.3.0 (for data processing)
 
 ## Usage
 
@@ -107,6 +123,18 @@ python main.py
    - Export: Click "Export" button in table view
    - Import: Use SQL executor or custom import dialogs
    - Supports CSV and JSON formats
+
+6. **Data Visualization**
+   - Click "Visualize" button in table view
+   - Select chart type and columns
+   - Generate interactive charts
+   - Available chart types: Bar, Line, Pie, Histogram, Scatter
+
+7. **Query Management**
+   - Access via Edit → Query Manager (Ctrl+H)
+   - View query history with execution details
+   - Save frequently used queries as favorites
+   - Quick query selection and reuse
 
 ## Project Structure
 

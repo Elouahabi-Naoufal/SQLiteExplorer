@@ -8,6 +8,7 @@ from PyQt6.QtCore import Qt, QThread, pyqtSignal
 from PyQt6.QtGui import QFont, QTextCursor
 
 from db.queries import QueryExecutor
+from utils.query_manager import QueryManager
 
 class SQLExecutorDialog(QDialog):
     """Dialog for executing SQL queries"""
@@ -15,6 +16,7 @@ class SQLExecutorDialog(QDialog):
     def __init__(self, query_executor: QueryExecutor, parent=None):
         super().__init__(parent)
         self.query_executor = query_executor
+        self.query_manager = QueryManager()
         
         self.setWindowTitle("SQL Query Executor")
         self.setModal(False)
@@ -42,6 +44,10 @@ class SQLExecutorDialog(QDialog):
         explain_btn = QPushButton("Explain")
         explain_btn.clicked.connect(self.explain_query)
         toolbar_layout.addWidget(explain_btn)
+        
+        history_btn = QPushButton("Query Manager")
+        history_btn.clicked.connect(self.open_query_manager)
+        toolbar_layout.addWidget(history_btn)
         
         toolbar_layout.addStretch()
         
@@ -130,6 +136,10 @@ class SQLExecutorDialog(QDialog):
                 
                 self.status_label.setText("Query completed")
                 self.results_tabs.setCurrentIndex(0)  # Show results tab
+                
+                # Add to query history
+                result_count = len(result['results']) if result and 'results' in result else result.get('rows_affected', 0) if result else 0
+                self.query_manager.add_to_history(query, 0, result_count)
             else:
                 self.clear_results()
                 self.messages_text.append(f"Query failed: {message}")
@@ -224,6 +234,18 @@ class SQLExecutorDialog(QDialog):
                 query = self.history_combo.itemData(index)
                 if query:
                     self.query_editor.setPlainText(query)
+    
+    def open_query_manager(self):
+        """Open query manager dialog"""
+        from .query_manager_dialog import QueryManagerDialog
+        
+        dialog = QueryManagerDialog(self.query_manager, self)
+        dialog.query_selected.connect(self.load_query_from_manager)
+        dialog.exec()
+    
+    def load_query_from_manager(self, query: str):
+        """Load query from manager"""
+        self.query_editor.setPlainText(query)
     
     def keyPressEvent(self, event):
         """Handle key press events"""

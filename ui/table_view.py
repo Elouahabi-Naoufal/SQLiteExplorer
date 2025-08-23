@@ -84,6 +84,10 @@ class TableView(QWidget):
         self.export_btn.clicked.connect(self.export_data)
         toolbar_layout.addWidget(self.export_btn)
         
+        self.visualize_btn = QPushButton("Visualize")
+        self.visualize_btn.clicked.connect(self.visualize_data)
+        toolbar_layout.addWidget(self.visualize_btn)
+        
         toolbar_layout.addStretch()
         layout.addLayout(toolbar_layout)
         
@@ -234,7 +238,7 @@ class TableView(QWidget):
     
     def next_page(self):
         """Go to next page"""
-        total_pages = (self.total_records + self.page_size - 1) // self.page_size
+        total_pages = max(1, (self.total_records + self.page_size - 1) // self.page_size)
         if self.current_page < total_pages - 1:
             self.current_page += 1
             self.load_data()
@@ -247,52 +251,52 @@ class TableView(QWidget):
     
     def add_record(self):
         """Add new record"""
-        dialog = RecordEditorDialog(self.table_name, self.table_schema, 
-                                  self.db_operations, self)
-        if dialog.exec():
+        from .dialogs.record_editor import RecordEditorDialog
+        dialog = RecordEditorDialog(self.table_schema, self.db_operations, self.table_name, self)
+        if dialog.exec() == dialog.DialogCode.Accepted:
             self.refresh_data()
+            self.record_changed.emit()
     
     def edit_record(self):
         """Edit selected record"""
         current_row = self.table_widget.currentRow()
-        if current_row < 0 or current_row >= len(self.records):
+        if current_row < 0:
             QMessageBox.warning(self, "Warning", "Please select a record to edit")
             return
         
         record = self.records[current_row]
-        dialog = RecordEditorDialog(self.table_name, self.table_schema, 
-                                  self.db_operations, self, record)
-        if dialog.exec():
+        from .dialogs.record_editor import RecordEditorDialog
+        dialog = RecordEditorDialog(self.table_schema, self.db_operations, self.table_name, self, record)
+        if dialog.exec() == dialog.DialogCode.Accepted:
             self.refresh_data()
+            self.record_changed.emit()
     
     def delete_record(self):
         """Delete selected record"""
         current_row = self.table_widget.currentRow()
-        if current_row < 0 or current_row >= len(self.records):
+        if current_row < 0:
             QMessageBox.warning(self, "Warning", "Please select a record to delete")
             return
         
-        reply = QMessageBox.question(self, "Confirm Delete", 
-                                   "Are you sure you want to delete this record?",
+        reply = QMessageBox.question(self, "Confirm Delete", "Are you sure you want to delete this record?",
                                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
         
         if reply == QMessageBox.StandardButton.Yes:
             record = self.records[current_row]
+            pk_columns = [col['name'] for col in self.table_schema if col.get('pk')]
             
-            # Build where clause using primary key or all columns
-            pk_columns = [col['name'] for col in self.table_schema if col['pk']]
             if pk_columns:
-                conditions = [f"{col} = ?" for col in pk_columns]
-                where_clause = " AND ".join(conditions)
+                where_parts = [f"{col} = ?" for col in pk_columns]
+                where_clause = " AND ".join(where_parts)
                 where_params = [record[col] for col in pk_columns]
             else:
-                # Use all columns if no primary key
-                conditions = [f"{col['name']} = ?" for col in self.table_schema]
-                where_clause = " AND ".join(conditions)
-                where_params = [record[col['name']] for col in self.table_schema]
+                where_parts = [f"{col} = ?" for col in record.keys()]
+                where_clause = " AND ".join(where_parts)
+                where_params = list(record.values())
             
             if self.db_operations.delete_record(self.table_name, where_clause, where_params):
                 self.refresh_data()
+                self.record_changed.emit()
                 QMessageBox.information(self, "Success", "Record deleted successfully")
             else:
                 QMessageBox.critical(self, "Error", "Failed to delete record")
@@ -306,67 +310,69 @@ class TableView(QWidget):
         from PyQt6.QtWidgets import QFileDialog
         
         file_path, file_type = QFileDialog.getSaveFileName(
-            self, "Export Data", f"{self.table_name}.csv",
+            self, "Export Data", f"{self.table_name}.csv", 
             "CSV Files (*.csv);;JSON Files (*.json)"
         )
         
         if file_path:
-            # Get all data for export (not just current page)
-            all_records = self.db_operations.get_records(self.table_name)
-            
             if file_type.startswith("CSV"):
-                success = self.export_manager.export_to_csv(all_records, file_path)
+                success = self.export_manager.export_to_csv(self.records, file_path)
             else:
-                success = self.export_manager.export_to_json(all_records, file_path)
+                success = self.export_manager.export_to_json(self.records, file_path)
             
             if success:
-                QMessageBox.information(self, "Success", f"Data exported to {file_path}")
+                QMessageBox.information(self, "Success", "Data exported successfully")
             else:
                 QMessageBox.critical(self, "Error", "Failed to export data")
     
-    def show_context_menu(self, position):
-        """Show context menu"""
-        if self.table_widget.itemAt(position) is None:
+    def visualize_data(self):
+        """Open data visualization dialog"""
+        if not self.records:
+            QMessageBox.warning(self, "Warning", "No data available for visualization")
             return
         
+        try:
+            from .data_visualizer import DataVisualizerWidget
+            from PyQt6.QtWidgets import QDialog, QVBoxLayout
+            
+            dialog = QDialog(self)
+            dialog.setWindowTitle(f"Data Visualization - {self.table_name}")
+            dialog.setGeometry(200, 200, 1000, 700)
+            
+            layout = QVBoxLayout(dialog)
+            visualizer = DataVisualizerWidget(self.records, self.table_name)
+            layout.addWidget(visualizer)
+            
+            dialog.exec()
+            
+        except ImportError:
+            QMessageBox.critical(self, "Error", "Visualization requires matplotlib and pandas.\nInstall with: pip install matplotlib pandas")
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Failed to open visualization: {str(e)}")
+    
+    def show_context_menu(self, position):
+        """Show context menu"""
         menu = QMenu(self)
         
-        edit_action = QAction("Edit Record", self)
-        edit_action.triggered.connect(self.edit_record)
-        menu.addAction(edit_action)
+        add_action = menu.addAction("Add Record")
+        add_action.triggered.connect(self.add_record)
         
-        delete_action = QAction("Delete Record", self)
-        delete_action.triggered.connect(self.delete_record)
-        menu.addAction(delete_action)
+        if self.table_widget.itemAt(position):
+            edit_action = menu.addAction("Edit Record")
+            edit_action.triggered.connect(self.edit_record)
+            
+            delete_action = menu.addAction("Delete Record")
+            delete_action.triggered.connect(self.delete_record)
         
         menu.addSeparator()
         
-        copy_action = QAction("Copy Cell", self)
-        copy_action.triggered.connect(self.copy_cell)
-        menu.addAction(copy_action)
+        refresh_action = menu.addAction("Refresh")
+        refresh_action.triggered.connect(self.refresh_data)
+        
+        export_action = menu.addAction("Export Data")
+        export_action.triggered.connect(self.export_data)
+        
+        visualize_action = menu.addAction("Visualize Data")
+        visualize_action.triggered.connect(self.visualize_data)
         
         menu.exec(self.table_widget.mapToGlobal(position))
-    
-    def copy_cell(self):
-        """Copy selected cell to clipboard"""
-        current_item = self.table_widget.currentItem()
-        if current_item:
-            from PyQt6.QtWidgets import QApplication
-            clipboard = QApplication.clipboard()
-            clipboard.setText(current_item.text())
-    
-    def sort_by_column(self, column_index: int):
-        """Sort table by column"""
-        if column_index < 0 or column_index >= len(self.table_schema):
-            return
-        
-        column_name = self.table_schema[column_index]['name']
-        
-        # Toggle sort order
-        if self.current_sort == f"{column_name} ASC":
-            self.current_sort = f"{column_name} DESC"
-        else:
-            self.current_sort = f"{column_name} ASC"
-        
-        self.current_page = 0
-        self.load_data()
