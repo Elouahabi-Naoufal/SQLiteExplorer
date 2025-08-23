@@ -20,30 +20,25 @@ class SchemaManager:
                 self.logger.log("No database connection", "ERROR")
                 return []
             
-            # First try to query sqlite_master
-            cursor = conn.execute("""
-                SELECT name, type, sql FROM sqlite_master 
-                WHERE type='table' AND name NOT LIKE 'sqlite_%'
-                ORDER BY name
-            """)
-            tables = [dict(row) for row in cursor.fetchall()]
+            # Try simple query first
+            cursor = conn.execute("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name")
+            rows = cursor.fetchall()
             
-            self.logger.log(f"Found {len(tables)} tables")
-            for table in tables:
-                self.logger.log(f"Table: {table['name']}")
+            tables = []
+            for row in rows:
+                table_name = row[0] if isinstance(row, tuple) else row['name']
+                tables.append({
+                    'name': table_name,
+                    'type': 'table',
+                    'sql': None
+                })
             
+            self.logger.log(f"Found {len(tables)} tables: {[t['name'] for t in tables]}")
             return tables
+            
         except Exception as e:
             self.logger.log(f"Get tables failed: {str(e)}", "ERROR")
-            # Try alternative query for encrypted databases
-            try:
-                cursor = conn.execute("SELECT name FROM sqlite_master WHERE type='table'")
-                tables = [{'name': row[0], 'type': 'table', 'sql': None} for row in cursor.fetchall()]
-                self.logger.log(f"Alternative query found {len(tables)} tables")
-                return tables
-            except Exception as e2:
-                self.logger.log(f"Alternative query also failed: {str(e2)}", "ERROR")
-                return []
+            return []
     
     def get_views(self) -> List[Dict[str, Any]]:
         """Get all views in database"""

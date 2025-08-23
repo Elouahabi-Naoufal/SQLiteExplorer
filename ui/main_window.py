@@ -207,40 +207,22 @@ class MainWindow(QMainWindow):
         
         self.schema_tree.clear()
         
-        # Add tables
-        tables_item = QTreeWidgetItem(self.schema_tree, ["Tables"])
-        tables_item.setExpanded(True)
-        
-        tables = self.schema_manager.get_tables()
-        for table in tables:
-            table_item = QTreeWidgetItem(tables_item, [table['name']])
-            table_item.setData(0, Qt.ItemDataRole.UserRole, {'type': 'table', 'name': table['name']})
+        try:
+            # Add tables
+            tables_item = QTreeWidgetItem(self.schema_tree, ["Tables"])
+            tables_item.setExpanded(True)
             
-            # Add columns
-            columns = self.schema_manager.get_table_schema(table['name'])
-            for column in columns:
-                col_text = f"{column['name']} ({column['type']})"
-                if column['pk']:
-                    col_text += " PK"
-                if column['notnull']:
-                    col_text += " NOT NULL"
+            tables = self.schema_manager.get_tables()
+            print(f"DEBUG: Found {len(tables)} tables")
+            
+            for table in tables:
+                table_item = QTreeWidgetItem(tables_item, [table['name']])
+                table_item.setData(0, Qt.ItemDataRole.UserRole, {'type': 'table', 'name': table['name']})
+                print(f"DEBUG: Added table {table['name']}")
                 
-                col_item = QTreeWidgetItem(table_item, [col_text])
-                col_item.setData(0, Qt.ItemDataRole.UserRole, {'type': 'column', 'table': table['name'], 'column': column['name']})
-        
-        # Add views
-        views_item = QTreeWidgetItem(self.schema_tree, ["Views"])
-        views = self.schema_manager.get_views()
-        for view in views:
-            view_item = QTreeWidgetItem(views_item, [view['name']])
-            view_item.setData(0, Qt.ItemDataRole.UserRole, {'type': 'view', 'name': view['name']})
-        
-        # Add indexes
-        indexes_item = QTreeWidgetItem(self.schema_tree, ["Indexes"])
-        indexes = self.schema_manager.get_indexes()
-        for index in indexes:
-            index_item = QTreeWidgetItem(indexes_item, [index['name']])
-            index_item.setData(0, Qt.ItemDataRole.UserRole, {'type': 'index', 'name': index['name']})
+        except Exception as e:
+            print(f"DEBUG: Schema refresh failed: {e}")
+            QMessageBox.critical(self, "Error", f"Failed to refresh schema: {str(e)}")
     
     def on_schema_item_double_clicked(self, item, column):
         """Handle schema tree item double click"""
