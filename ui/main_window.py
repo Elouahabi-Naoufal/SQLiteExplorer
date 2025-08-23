@@ -65,7 +65,7 @@ class MainWindow(QMainWindow):
         # Left panel - Schema tree
         self.schema_tree = QTreeWidget()
         self.schema_tree.setHeaderLabel("Database Schema")
-        self.schema_tree.itemDoubleClicked.connect(self.on_schema_item_double_clicked)
+        self.schema_tree.itemClicked.connect(self.on_schema_item_clicked)
         self.schema_tree.setMaximumWidth(300)
         splitter.addWidget(self.schema_tree)
         
@@ -231,7 +231,7 @@ class MainWindow(QMainWindow):
             print(f"DEBUG: Schema refresh failed: {e}")
             QMessageBox.critical(self, "Error", f"Failed to refresh schema: {str(e)}")
     
-    def on_schema_item_double_clicked(self, item, column):
+    def on_schema_item_clicked(self, item, column):
         """Handle schema tree item double click"""
         data = item.data(0, Qt.ItemDataRole.UserRole)
         if data and data['type'] == 'table':
