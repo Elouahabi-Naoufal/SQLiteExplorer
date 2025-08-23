@@ -88,6 +88,10 @@ class TableView(QWidget):
         self.visualize_btn.clicked.connect(self.visualize_data)
         toolbar_layout.addWidget(self.visualize_btn)
         
+        self.bulk_import_btn = QPushButton("Bulk Import")
+        self.bulk_import_btn.clicked.connect(self.bulk_import)
+        toolbar_layout.addWidget(self.bulk_import_btn)
+        
         toolbar_layout.addStretch()
         layout.addLayout(toolbar_layout)
         
@@ -205,8 +209,8 @@ class TableView(QWidget):
                 item.setFlags(item.flags() | Qt.ItemFlag.ItemIsEditable)  # Editable
                 self.table_widget.setItem(row_idx, col_idx, item)
         
-        # Auto-resize columns
-        self.table_widget.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)
+        # Set column resize mode to interactive
+        self.table_widget.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Interactive)
     
     def update_pagination_info(self):
         """Update pagination controls"""
@@ -416,4 +420,18 @@ class TableView(QWidget):
         visualize_action = menu.addAction("Visualize Data")
         visualize_action.triggered.connect(self.visualize_data)
         
+        bulk_import_action = menu.addAction("Bulk Import")
+        bulk_import_action.triggered.connect(self.bulk_import)
+        
         menu.exec(self.table_widget.mapToGlobal(position))
+    
+    def bulk_import(self):
+        """Open bulk import dialog"""
+        try:
+            from .dialogs.bulk_import_dialog import BulkImportDialog
+            dialog = BulkImportDialog(self.table_name, self.table_schema, self.db_operations, self)
+            if dialog.exec() == dialog.DialogCode.Accepted:
+                self.refresh_data()
+                self.record_changed.emit()
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Failed to open bulk import: {str(e)}")

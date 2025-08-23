@@ -59,24 +59,29 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(central_widget)
         
         layout = QHBoxLayout(central_widget)
-        splitter = QSplitter(Qt.Orientation.Horizontal)
-        layout.addWidget(splitter)
+        self.splitter = QSplitter(Qt.Orientation.Horizontal)
+        layout.addWidget(self.splitter)
         
         # Left panel - Schema tree
         self.schema_tree = QTreeWidget()
         self.schema_tree.setHeaderLabel("Database Schema")
         self.schema_tree.itemClicked.connect(self.on_schema_item_clicked)
-        self.schema_tree.setMaximumWidth(300)
-        splitter.addWidget(self.schema_tree)
+        self.schema_tree.setMinimumWidth(200)
+        self.schema_tree.setMaximumWidth(500)
+        self.splitter.addWidget(self.schema_tree)
         
         # Right panel - Tab widget for tables/queries
         self.tab_widget = QTabWidget()
         self.tab_widget.setTabsClosable(True)
         self.tab_widget.tabCloseRequested.connect(self.close_tab)
-        splitter.addWidget(self.tab_widget)
+        self.tab_widget.setMinimumWidth(400)
+        self.splitter.addWidget(self.tab_widget)
         
-        # Set splitter proportions
-        splitter.setSizes([300, 900])
+        # Set fixed splitter proportions
+        self.splitter.setSizes([300, 900])
+        self.splitter.setStretchFactor(0, 0)
+        self.splitter.setStretchFactor(1, 1)
+
     
     def create_menus(self):
         """Create application menus"""
@@ -103,6 +108,12 @@ class MainWindow(QMainWindow):
         restore_action = QAction("&Restore Database...", self)
         restore_action.triggered.connect(self.restore_database)
         file_menu.addAction(restore_action)
+        
+        file_menu.addSeparator()
+        
+        bulk_export_action = QAction("&Bulk Export...", self)
+        bulk_export_action.triggered.connect(self.bulk_export)
+        file_menu.addAction(bulk_export_action)
         
         file_menu.addSeparator()
         
@@ -244,10 +255,16 @@ class MainWindow(QMainWindow):
             self.tab_widget.setCurrentWidget(self.open_tabs[table_name])
             return
         
+        # Store current splitter sizes
+        current_sizes = self.splitter.sizes()
+        
         # Create new table view
         table_view = TableView(table_name, self.db_operations, self.query_executor, self.schema_manager)
         self.tab_widget.addTab(table_view, table_name)
         self.tab_widget.setCurrentWidget(table_view)
+        
+        # Restore splitter sizes
+        self.splitter.setSizes(current_sizes)
         
         self.open_tabs[table_name] = table_view
         self.current_table = table_name
@@ -389,6 +406,19 @@ class MainWindow(QMainWindow):
         
         dialog = QueryManagerDialog(self.query_manager, self)
         dialog.exec()
+    
+    def bulk_export(self):
+        """Open bulk export dialog"""
+        if not self.db_connection.is_connected():
+            QMessageBox.warning(self, "Warning", "Please connect to a database first")
+            return
+        
+        try:
+            from .dialogs.bulk_export_dialog import BulkExportDialog
+            dialog = BulkExportDialog(self.db_operations, self.schema_manager, self)
+            dialog.exec()
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Failed to open bulk export: {str(e)}")
     
     def closeEvent(self, event):
         """Handle application close"""
