@@ -63,37 +63,66 @@ class TableView(QWidget):
         toolbar_layout.addWidget(self.filter_column)
         toolbar_layout.addWidget(self.filter_value)
         
-        # Buttons
-        self.add_btn = QPushButton("Add Record")
+        # Buttons with emojis
+        self.add_btn = QPushButton("➕")
+        self.add_btn.setToolTip("Add Record")
         self.add_btn.clicked.connect(self.add_record)
         toolbar_layout.addWidget(self.add_btn)
         
-        self.edit_btn = QPushButton("Edit Record")
+        self.edit_btn = QPushButton("✏️")
+        self.edit_btn.setToolTip("Edit Record")
         self.edit_btn.clicked.connect(self.edit_full_record)
         toolbar_layout.addWidget(self.edit_btn)
         
-        self.delete_btn = QPushButton("Delete Record")
+        self.delete_btn = QPushButton("🗑️")
+        self.delete_btn.setToolTip("Delete Record")
         self.delete_btn.clicked.connect(self.delete_record)
         toolbar_layout.addWidget(self.delete_btn)
         
-        self.refresh_btn = QPushButton("Refresh")
+        self.refresh_btn = QPushButton("🔄")
+        self.refresh_btn.setToolTip("Refresh")
         self.refresh_btn.clicked.connect(self.refresh_data)
         toolbar_layout.addWidget(self.refresh_btn)
         
-        self.export_btn = QPushButton("Export")
+        self.export_btn = QPushButton("📤")
+        self.export_btn.setToolTip("Export")
         self.export_btn.clicked.connect(self.export_data)
         toolbar_layout.addWidget(self.export_btn)
         
-        self.visualize_btn = QPushButton("Visualize")
+        self.visualize_btn = QPushButton("📊")
+        self.visualize_btn.setToolTip("Visualize")
         self.visualize_btn.clicked.connect(self.visualize_data)
         toolbar_layout.addWidget(self.visualize_btn)
         
-        self.bulk_import_btn = QPushButton("Bulk Import")
+        self.bulk_import_btn = QPushButton("📥")
+        self.bulk_import_btn.setToolTip("Bulk Import")
         self.bulk_import_btn.clicked.connect(self.bulk_import)
         toolbar_layout.addWidget(self.bulk_import_btn)
         
         toolbar_layout.addStretch()
         layout.addLayout(toolbar_layout)
+        
+        # Style buttons for smooth hover effect
+        button_style = """
+            QPushButton {
+                border: none;
+                padding: 8px;
+                font-size: 16px;
+                border-radius: 4px;
+                background-color: transparent;
+            }
+            QPushButton:hover {
+                background-color: rgba(0, 120, 215, 0.1);
+                border: 1px solid rgba(0, 120, 215, 0.3);
+            }
+            QPushButton:pressed {
+                background-color: rgba(0, 120, 215, 0.2);
+            }
+        """
+        
+        for btn in [self.add_btn, self.edit_btn, self.delete_btn, self.refresh_btn, 
+                   self.export_btn, self.visualize_btn, self.bulk_import_btn]:
+            btn.setStyleSheet(button_style)
         
         # Table widget
         self.table_widget = QTableWidget()
