@@ -128,6 +128,7 @@ class TableView(QWidget):
         self.table_widget = QTableWidget()
         self.table_widget.setAlternatingRowColors(True)
         self.table_widget.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
+        self.table_widget.setSelectionMode(QTableWidget.SelectionMode.ExtendedSelection)
         self.table_widget.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.table_widget.customContextMenuRequested.connect(self.show_context_menu)
         self.table_widget.itemClicked.connect(self.on_cell_clicked)
@@ -292,34 +293,48 @@ class TableView(QWidget):
             self.record_changed.emit()
     
     def delete_record(self):
-        """Delete selected record"""
-        current_row = self.table_widget.currentRow()
-        if current_row < 0:
-            QMessageBox.warning(self, "Warning", "Please select a record to delete")
+        """Delete selected records"""
+        selected_rows = set(item.row() for item in self.table_widget.selectedItems())
+        if not selected_rows:
+            QMessageBox.warning(self, "Warning", "Please select records to delete")
             return
         
-        reply = QMessageBox.question(self, "Confirm Delete", "Are you sure you want to delete this record?",
+        count = len(selected_rows)
+        record_text = "record" if count == 1 else "records"
+        reply = QMessageBox.question(self, "Confirm Delete", 
+                                   f"Are you sure you want to delete {count} {record_text}?",
                                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
         
         if reply == QMessageBox.StandardButton.Yes:
-            record = self.records[current_row]
             pk_columns = [col['name'] for col in self.table_schema if col.get('pk')]
+            deleted_count = 0
             
-            if pk_columns:
-                where_parts = [f"{col} = ?" for col in pk_columns]
-                where_clause = " AND ".join(where_parts)
-                where_params = [record[col] for col in pk_columns]
-            else:
-                where_parts = [f"{col} = ?" for col in record.keys()]
-                where_clause = " AND ".join(where_parts)
-                where_params = list(record.values())
+            for row in sorted(selected_rows, reverse=True):
+                if row >= len(self.records):
+                    continue
+                    
+                record = self.records[row]
+                
+                if pk_columns:
+                    where_parts = [f"{col} = ?" for col in pk_columns]
+                    where_clause = " AND ".join(where_parts)
+                    where_params = [record[col] for col in pk_columns]
+                else:
+                    where_parts = [f"{col} = ?" for col in record.keys()]
+                    where_clause = " AND ".join(where_parts)
+                    where_params = list(record.values())
+                
+                if self.db_operations.delete_record(self.table_name, where_clause, where_params):
+                    deleted_count += 1
             
-            if self.db_operations.delete_record(self.table_name, where_clause, where_params):
-                self.refresh_data()
-                self.record_changed.emit()
-                QMessageBox.information(self, "Success", "Record deleted successfully")
+            self.refresh_data()
+            self.record_changed.emit()
+            
+            if deleted_count == count:
+                QMessageBox.information(self, "Success", f"{deleted_count} {record_text} deleted successfully")
             else:
-                QMessageBox.critical(self, "Error", "Failed to delete record")
+                QMessageBox.warning(self, "Partial Success", 
+                                   f"Deleted {deleted_count} of {count} {record_text}")
     
     def refresh_data(self):
         """Refresh table data"""

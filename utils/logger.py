@@ -9,7 +9,12 @@ class Logger:
     """Application logger"""
     
     def __init__(self, log_file: Optional[str] = None):
-        self.log_file = log_file or "sqlite_manager.log"
+        if log_file:
+            self.log_file = log_file
+        else:
+            # Use user's home directory for logs when in AppImage
+            home_dir = os.path.expanduser("~")
+            self.log_file = os.path.join(home_dir, "sqlite_manager.log")
         self.setup_logging()
     
     def setup_logging(self):

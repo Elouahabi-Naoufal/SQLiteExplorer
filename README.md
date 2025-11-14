@@ -1,283 +1,296 @@
 # SQLite Manager - Professional Database Management Tool
 
-A full-featured desktop application for managing SQLite databases with complete CRUD operations, schema management, and advanced features.
+A comprehensive desktop application for managing SQLite databases with complete CRUD operations, advanced features, and an intuitive GUI interface.
 
-## Features
+![SQLite Manager](resources/sqlite_manager.png)
 
-### Database Operations (25+ Functions)
-1. **Connection Management**
-   - Connect to SQLite or SQLCipher databases
-   - Disconnect safely with transaction handling
-   - Test connection status
-   - Auto-reconnect functionality
+## 🚀 Features
 
-2. **Transaction Control**
-   - Begin/commit/rollback transactions
-   - Automatic transaction management
-   - Transaction logging
+### Core Database Operations
+- **Connection Management**: Connect to SQLite/SQLCipher databases with encryption support
+- **Schema Management**: Create, modify, and drop tables, indexes, views, and triggers
+- **Data Operations**: Full CRUD operations with batch processing capabilities
+- **Transaction Control**: Manual and automatic transaction management
+- **Query Execution**: Execute custom SQL with syntax validation and history
 
-3. **Schema Management**
-   - Read all tables, views, indexes, triggers
-   - Create, rename, and drop tables
-   - Add, rename, or drop columns
-   - Create, delete, and modify indexes
-   - Create, delete, and modify triggers
-   - View table relationships and foreign keys
+### Advanced Features
+- **Multi-Record Selection**: Select and delete multiple records simultaneously
+- **Data Visualization**: Generate charts (bar, line, pie, histogram, scatter plots)
+- **Import/Export**: CSV and JSON support with column mapping
+- **Query Manager**: Save favorite queries and track execution history
+- **Backup/Restore**: Complete database backup and restoration
+- **Theme Support**: Dark and light themes with smooth transitions
 
-4. **Data Operations**
-   - Insert records (single and batch)
-   - Update records (single and batch)
-   - Delete records (single, multiple, batch)
-   - Search and filter records
-   - Sort table data
-   - Pagination for large datasets
-
-5. **Query Execution**
-   - Execute arbitrary SQL commands (DDL, DML, SELECT)
-   - SQL syntax validation
-   - Query execution plans
-   - Query history tracking
-
-6. **Import/Export**
-   - Export table data to CSV or JSON
-   - Import CSV or JSON into tables
-   - Column mapping for imports
-   - Data validation during import
-
-7. **Advanced Features**
-   - Backup and restore databases
-   - Undo/redo operations logging
-   - Multi-tab interface
-   - Dark/Light theme support
-   - Session management
-   - Recent databases tracking
-
-8. **Data Visualization**
-   - Generate charts from table data
-   - Bar charts, line charts, pie charts
-   - Histograms and scatter plots
-   - Interactive chart generation
-   - Export visualizations
-
-9. **Query Management**
-   - Automatic query history tracking
-   - Save favorite queries with descriptions
-   - Quick access to recent queries
-   - Query execution statistics
-   - Organized query library
-
-### GUI Features
+### User Interface
 - **Split View Layout**: Schema tree on left, data tables on right
-- **Multi-tab Support**: Open multiple tables simultaneously
-- **Dynamic Forms**: Auto-generated forms based on table schema
-- **Context Menus**: Right-click operations for tables and records
+- **Multi-Tab Interface**: Open multiple tables simultaneously
+- **Pagination**: Handle large datasets efficiently
+- **Search & Filter**: Real-time data filtering and search
+- **Context Menus**: Right-click operations throughout the interface
 - **Keyboard Shortcuts**: Quick access to common operations
-- **Confirmation Dialogs**: Safety prompts for destructive actions
-- **Error Handling**: Comprehensive error messages with SQLite codes
 
-## Installation
+## 📋 Requirements
 
-### Requirements
+### System Requirements
+- Python 3.8 or higher
+- Linux/macOS/Windows
+- 512MB RAM minimum
+- 100MB disk space
+
+### Python Dependencies
 ```bash
+PyQt6 >= 6.4.0
+pycryptodome >= 3.17.0
+matplotlib >= 3.5.0
+pandas >= 1.3.0
+Pillow >= 9.0.0
+```
+
+## 🛠️ Installation
+
+### Quick Install
+```bash
+# Clone or download the application
+cd dbgui
+
+# Install dependencies
 pip install -r requirements.txt
+
+# Run the application
+python3 main.py
 ```
 
-### Dependencies
-- PyQt6 >= 6.4.0
-- pycryptodome >= 3.17.0 (for SQLCipher support)
-- matplotlib >= 3.5.0 (for data visualization)
-- pandas >= 1.3.0 (for data processing)
-
-## Usage
-
-### Running the Application
+### Desktop Integration (Linux)
 ```bash
-python main.py
+# Make desktop file executable
+chmod +x sqlite-manager.desktop
+
+# Install to applications menu
+cp sqlite-manager.desktop ~/.local/share/applications/
+
+# Update desktop database
+update-desktop-database ~/.local/share/applications/
 ```
+
+## 🎯 Usage Guide
+
+### Getting Started
+1. **Launch Application**: Run `python3 main.py` or use desktop shortcut
+2. **Connect Database**: File → Connect to Database (Ctrl+O)
+3. **Browse Schema**: Explore tables, views, and indexes in left panel
+4. **View Data**: Double-click any table to open in new tab
 
 ### Basic Operations
 
-1. **Connect to Database**
-   - File → Connect to Database
-   - Browse for existing .db file or create new
-   - Optional: Enable SQLCipher encryption
+#### Managing Records
+- **Add Record**: Click ➕ button or press Ctrl+N
+- **Edit Record**: Double-click row or click ✏️ button
+- **Delete Records**: 
+  - Select single record and click 🗑️
+  - Select multiple records (Ctrl+click) and delete all at once
+- **Search Data**: Use search box to filter records
 
-2. **View Tables**
-   - Schema tree shows all tables, views, indexes
-   - Double-click table to open in new tab
-   - View column information and constraints
+#### SQL Operations
+- **Execute SQL**: Edit → Execute SQL (Ctrl+E)
+- **View History**: Edit → Query Manager (Ctrl+H)
+- **Save Queries**: Mark frequently used queries as favorites
 
-3. **Manage Data**
-   - Add Record: Click "Add Record" button
-   - Edit Record: Double-click row or use "Edit Record"
-   - Delete Record: Select row and click "Delete Record"
-   - Search: Use search box to filter records
+#### Data Management
+- **Export Data**: Click 📤 button, choose CSV or JSON format
+- **Import Data**: Click 📥 button, map columns and import
+- **Visualize Data**: Click 📊 button to generate charts
 
-4. **Execute SQL**
-   - Edit → Execute SQL (Ctrl+E)
-   - Write custom queries
-   - View results in table format
-   - Access query history
+### Advanced Features
 
-5. **Import/Export**
-   - Export: Click "Export" button in table view
-   - Import: Use SQL executor or custom import dialogs
-   - Supports CSV and JSON formats
+#### Multi-Record Operations
+```
+1. Hold Ctrl and click multiple rows to select
+2. Or hold Shift and click to select range
+3. Click delete button to remove all selected records
+4. Confirm deletion in dialog
+```
 
-6. **Data Visualization**
-   - Click "Visualize" button in table view
-   - Select chart type and columns
-   - Generate interactive charts
-   - Available chart types: Bar, Line, Pie, Histogram, Scatter
+#### Query Management
+```sql
+-- Save complex queries for reuse
+SELECT customers.name, COUNT(orders.id) as order_count
+FROM customers 
+LEFT JOIN orders ON customers.id = orders.customer_id
+GROUP BY customers.id
+ORDER BY order_count DESC;
+```
 
-7. **Query Management**
-   - Access via Edit → Query Manager (Ctrl+H)
-   - View query history with execution details
-   - Save frequently used queries as favorites
-   - Quick query selection and reuse
+#### Data Visualization
+- Select numeric columns for charts
+- Choose from 5 chart types
+- Interactive plots with zoom and pan
+- Export visualizations as images
 
-## Project Structure
+## 🏗️ Project Structure
 
 ```
 dbgui/
-├── main.py                 # Application entry point
-├── db/                     # Database logic
-│   ├── connection.py       # Connection management
-│   ├── schema.py          # Schema operations
-│   ├── operations.py      # CRUD operations
-│   └── queries.py         # Query execution
-├── ui/                     # GUI components
-│   ├── main_window.py     # Main application window
-│   ├── table_view.py      # Table data display
-│   ├── forms.py           # Dynamic form generation
-│   └── dialogs/           # Dialog windows
+├── main.py                     # Application entry point
+├── requirements.txt            # Python dependencies
+├── sqlite-manager.desktop      # Desktop integration file
+├── create_icon.py             # Icon generation script
+├── db/                        # Database operations
+│   ├── connection.py          # Connection management
+│   ├── operations.py          # CRUD operations
+│   ├── queries.py            # Query execution
+│   └── schema.py             # Schema management
+├── ui/                        # User interface
+│   ├── main_window.py        # Main application window
+│   ├── table_view.py         # Data table display
+│   ├── data_visualizer.py    # Chart generation
+│   └── dialogs/              # Dialog windows
 │       ├── connection_dialog.py
 │       ├── sql_executor.py
 │       ├── record_editor.py
+│       ├── query_manager_dialog.py
+│       ├── bulk_import_dialog.py
 │       └── table_editor.py
-├── utils/                  # Utilities
-│   ├── logger.py          # Logging system
-│   ├── backup.py          # Backup/restore
-│   ├── export.py          # Import/export
-│   ├── session.py         # Session management
-│   └── theme.py           # Theme management
-├── resources/              # Resources
-│   └── styles.qss         # Stylesheets
-├── requirements.txt        # Dependencies
-└── README.md              # Documentation
+├── utils/                     # Utility modules
+│   ├── backup.py             # Backup operations
+│   ├── export.py             # Import/export
+│   ├── logger.py             # Logging system
+│   ├── query_manager.py      # Query management
+│   ├── session.py            # Session persistence
+│   └── theme.py              # Theme management
+└── resources/                 # Application resources
+    ├── sqlite_manager.png     # Application icon
+    └── styles.qss            # Stylesheets
 ```
 
-## Architecture
+## ⌨️ Keyboard Shortcuts
 
-### Database Layer (`db/`)
-- **connection.py**: Manages SQLite connections, transactions
-- **schema.py**: Handles table/view/index/trigger operations
-- **operations.py**: CRUD operations with validation
-- **queries.py**: SQL execution with history tracking
+| Shortcut | Action |
+|----------|--------|
+| Ctrl+O | Connect to Database |
+| Ctrl+N | Add New Record |
+| Ctrl+E | Execute SQL |
+| Ctrl+H | Query Manager |
+| Ctrl+R | Refresh Data |
+| Ctrl+F | Search/Filter |
+| Delete | Delete Selected Records |
+| F5 | Refresh Current View |
+| Ctrl+T | New Tab |
+| Ctrl+W | Close Tab |
 
-### UI Layer (`ui/`)
-- **main_window.py**: Main application window with split view
-- **table_view.py**: Data display with pagination and filtering
-- **forms.py**: Dynamic form generation based on schema
-- **dialogs/**: Specialized dialogs for various operations
+## 🎨 Themes
 
-### Utilities (`utils/`)
-- **logger.py**: Comprehensive logging system
-- **backup.py**: Database backup and restore
-- **export.py**: CSV/JSON import/export
-- **session.py**: Application state persistence
-- **theme.py**: Theme management system
+The application supports multiple themes:
+- **Light Theme**: Clean, professional appearance
+- **Dark Theme**: Easy on the eyes for extended use
+- **Auto Theme**: Follows system preferences
 
-## Key Features Implementation
+Switch themes via: View → Themes
 
-### 1. Dynamic Schema Handling
-- Automatically detects table structure
-- Generates appropriate input widgets for each data type
-- Validates data against schema constraints
-- Handles primary keys, foreign keys, and unique constraints
+## 🔧 Configuration
 
-### 2. Transaction Safety
-- All operations wrapped in transactions
-- Automatic rollback on errors
-- Manual transaction control available
-- Connection state monitoring
+### Database Settings
+- **Connection Timeout**: Configurable timeout for database operations
+- **Page Size**: Adjust pagination size (10-1000 records)
+- **Auto-commit**: Enable/disable automatic transaction commits
 
-### 3. Data Validation
-- Type checking against column definitions
-- Required field validation
-- Constraint enforcement
-- Import data validation
+### UI Preferences
+- **Theme Selection**: Light, dark, or auto
+- **Font Size**: Adjustable interface font size
+- **Column Width**: Auto-resize or manual column sizing
 
-### 4. Performance Optimization
-- Pagination for large datasets
-- Lazy loading of table data
-- Efficient query execution
-- Memory management for large results
+## 📊 Supported Data Types
 
-### 5. User Experience
-- Intuitive split-view interface
-- Keyboard shortcuts for power users
-- Context-sensitive menus
-- Comprehensive error messages
-- Session persistence
+| SQLite Type | Display | Input Validation |
+|-------------|---------|------------------|
+| INTEGER | Number | Numeric validation |
+| REAL | Decimal | Float validation |
+| TEXT | String | Length limits |
+| BLOB | Binary | File upload |
+| BOOLEAN | Checkbox | True/False |
+| DATE | Date picker | Date format |
+| DATETIME | DateTime picker | Timestamp format |
 
-## Advanced Usage
+## 🔒 Security Features
 
-### Custom SQL Queries
-```sql
--- Complex joins
-SELECT t1.*, t2.name 
-FROM table1 t1 
-JOIN table2 t2 ON t1.id = t2.table1_id;
+- **SQLCipher Support**: Encrypted database connections
+- **Input Validation**: SQL injection prevention
+- **Transaction Safety**: Automatic rollback on errors
+- **Backup Encryption**: Optional backup encryption
 
--- Data analysis
-SELECT category, COUNT(*), AVG(price) 
-FROM products 
-GROUP BY category 
-ORDER BY COUNT(*) DESC;
-```
-
-### Batch Operations
-- Use SQL executor for batch inserts
-- Import CSV files with column mapping
-- Batch update operations via SQL
-
-### Database Maintenance
-- Regular backups via File → Backup Database
-- VACUUM operations via SQL executor
-- Index optimization and analysis
-
-## Troubleshooting
+## 🐛 Troubleshooting
 
 ### Common Issues
-1. **Connection Failed**: Check file permissions and path
-2. **Import Errors**: Verify CSV format and column mapping
-3. **Performance Issues**: Use pagination and indexes
-4. **Theme Issues**: Reset to default theme in preferences
 
-### Logging
-- All operations logged to `sqlite_manager.log`
-- Error details available in log file
-- Debug mode available for development
+**Connection Failed**
+```
+- Check file permissions
+- Verify database file exists
+- Ensure SQLite version compatibility
+```
 
-## Contributing
+**Import Errors**
+```
+- Validate CSV format
+- Check column mapping
+- Verify data types match schema
+```
+
+**Performance Issues**
+```
+- Reduce page size for large tables
+- Add indexes for frequently queried columns
+- Use VACUUM to optimize database
+```
+
+### Log Files
+Application logs are stored in `sqlite_manager.log` with detailed error information.
+
+## 🤝 Contributing
+
+### Development Setup
+```bash
+# Clone repository
+git clone <repository-url>
+cd dbgui
+
+# Create virtual environment
+python3 -m venv venv
+source venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run in development mode
+python3 main.py
+```
 
 ### Code Style
 - Follow PEP 8 guidelines
-- Use type hints where possible
-- Comprehensive docstrings
-- Modular design principles
+- Use type hints
+- Write comprehensive docstrings
+- Maintain modular architecture
 
-### Testing
-- Test with various SQLite database sizes
-- Verify import/export functionality
-- Check theme switching
-- Validate error handling
+## 📄 License
 
-## License
+This project is licensed under the MIT License - see the LICENSE file for details.
 
-This project is open source and available under the MIT License.
+## 🆘 Support
 
-## Support
+For issues, feature requests, or questions:
+1. Check the troubleshooting section
+2. Review application logs
+3. Create an issue in the project repository
 
-For issues and feature requests, please check the documentation or create an issue in the project repository.
+## 🔄 Version History
+
+### v1.0.0
+- Initial release with core functionality
+- Multi-record selection and deletion
+- Data visualization capabilities
+- Query management system
+- Theme support
+- Import/export functionality
+
+---
+
+**SQLite Manager** - Making database management simple and powerful.

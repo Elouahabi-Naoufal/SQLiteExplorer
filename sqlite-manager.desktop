@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=SQLite Manager
+Comment=Professional SQLite Database Management Tool
+Exec=/opt/SQLite-Manager-1.0.0-x86_64.AppImage
+Icon=sqlite-manager
+Terminal=false
+Categories=Development;Database;
+Keywords=sqlite;database;sql;manager;gui;
+StartupNotify=true
+MimeType=application/x-sqlite3;application/vnd.sqlite3;
