@@ -1,17 +1,6 @@
-<!-- Improved compatibility of back to top link: See: https://github.com/othneildrew/Best-README-Template/pull/73 -->
 <a id="readme-top"></a>
 
-
-
-
 <!-- PROJECT SHIELDS -->
-<!--
-*** I'm using markdown "reference style" links for readability.
-*** Reference links are enclosed in brackets [ ] instead of parentheses ( ).
-*** See the bottom of this document for the declaration of the reference variables
-*** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
-*** https://www.markdownguide.org/basic-syntax/#reference-style-links
--->
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
@@ -19,33 +8,27 @@
 [![License][license-shield]][license-url]
 [![LinkedIn][linkedin-shield]][linkedin-url]
 
-
-
-
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
-  <a href="https://github.com/Elouahabi-Naoufal/dbgui">
-    <img src="resources/sqlite_manager.png" alt="SQLite Manager logo" width="80" height="80">
+  <a href="https://github.com/Elouahabi-Naoufal/SQLiteExplorer">
+    <img src="resources/sqlite_manager.png" alt="SQLiteExplorer logo" width="80" height="80">
   </a>
 
-  <h3 align="center">SQLite Manager</h3>
+  <h3 align="center">SQLiteExplorer</h3>
 
   <p align="center">
     A PyQt6 desktop client for browsing and editing SQLite files, with a SQL console,
     charting, CSV/JSON transfer and SQLCipher support.
     <br />
-    <a href="https://github.com/Elouahabi-Naoufal/dbgui"><strong>Read the source »</strong></a>
+    <a href="https://github.com/Elouahabi-Naoufal/SQLiteExplorer"><strong>Explore the source »</strong></a>
     <br />
     <br />
-    <a href="https://github.com/Elouahabi-Naoufal/dbgui/issues">Report Bug</a>
+    <a href="https://github.com/Elouahabi-Naoufal/SQLiteExplorer/issues">Report Bug</a>
     &middot;
-    <a href="https://github.com/Elouahabi-Naoufal/dbgui/issues">Request Feature</a>
+    <a href="https://github.com/Elouahabi-Naoufal/SQLiteExplorer/issues">Request Feature</a>
   </p>
 </div>
-
-
-
 
 <!-- TABLE OF CONTENTS -->
 <details>
@@ -73,15 +56,12 @@
   </ol>
 </details>
 
-
-
-
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-SQLite Manager is a cross-platform desktop front end for SQLite database files, written in Python
-with PyQt6. It opens a `.sqlite`/`.db` file directly from disk — there is no server, no daemon and
-no configuration file.
+SQLiteExplorer (formerly `dbgui`) is a cross-platform desktop front end for SQLite database files,
+written in Python with PyQt6. It opens a `.sqlite`/`.db` file directly from disk — there is no server,
+no daemon and no configuration file.
 
 The window is a split view: a schema tree on the left, a tabbed data workspace on the right. Clicking a
 table opens it in its own tab, so several tables can stay open side by side.
@@ -101,7 +81,7 @@ What it does:
 * **Import / export** — export the visible page to CSV or JSON, import a CSV/JSON file with an explicit
   column mapping and a preview step, or run a bulk export of several tables into one output directory.
 * **Charts** — bar, line, pie, histogram and scatter plots built with matplotlib over the loaded rows,
-  with X/Y column pickers limited to numeric columns.
+  with X/Y column pickers.
 * **Backup and restore** — file-level copy of the open database to and from a chosen path.
 * **Encrypted files** — if `pysqlcipher3` is installed and a password is supplied, the connection is opened
   through SQLCipher instead of the stdlib driver.
@@ -112,8 +92,6 @@ next to the working directory as plain JSON (`session.json`, `query_history.json
 and logs go to `~/sqlite_manager.log`.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
 
 ### Built With
 
@@ -127,12 +105,10 @@ and logs go to `~/sqlite_manager.log`.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-
-
 <!-- GETTING STARTED -->
 ## Getting Started
 
-To run SQLite Manager from source you need a Python interpreter and the five dependencies pinned in
+To run SQLiteExplorer from source you need a Python interpreter and the dependencies listed in
 `requirements.txt`.
 
 ### Prerequisites
@@ -154,8 +130,8 @@ sudo apt install build-essential libsqlcipher-dev   # Debian/Ubuntu, only for py
 1. Clone the repository
 
    ```sh
-   git clone https://github.com/Elouahabi-Naoufal/dbgui.git
-   cd dbgui
+   git clone https://github.com/Elouahabi-Naoufal/SQLiteExplorer.git
+   cd SQLiteExplorer
    ```
 
 2. Create a virtual environment and install the dependencies
@@ -170,13 +146,6 @@ sudo apt install build-essential libsqlcipher-dev   # Debian/Ubuntu, only for py
 
    ```sh
    python3 main.py
-   ```
-
-4. Point git at your own fork before committing, so an accidental push does not land upstream
-
-   ```sh
-   git remote set-url origin https://github.com/Elouahabi-Naoufal/dbgui.git
-   git remote -v # confirm the changes
    ```
 
 <details>
@@ -207,15 +176,13 @@ update-desktop-database ~/.local/share/applications/
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-
-
 <!-- USAGE EXAMPLES -->
 ## Usage
 
 ### Connect and browse
 
 `File → Connect to Database…` (`Ctrl+O`) opens the connection dialog. Browse for a file, tick
-*Use encryption* to supply a SQLCipher password, or double-click one of the recently opened databases.
+*Use encryption* to supply a SQLCipher password, or pick one of the recently opened databases.
 The driver tries plain `sqlite3` first and only falls back to SQLCipher if that fails or a password was
 given. Foreign keys are enabled with `PRAGMA foreign_keys = ON` on every connection.
 
@@ -227,7 +194,7 @@ Click a table in the left tree to open it. The tab loads the schema, then the fi
   the primary key when the table has one; for keyless tables every column is matched.
 * `➕` opens the record editor dialog for a new row, `✏️` re-opens it for the selected row with the
   current values loaded.
-* `🗑️` deletes every selected row after a confirmation prompt. The widget is in extended-selection mode,
+* `🗑️` deletes every selected row after a confirmation prompt. The view is in extended-selection mode,
   so `Ctrl`/`Shift`-click multi-row selections work.
 
 ### Run SQL
@@ -254,8 +221,7 @@ ORDER BY orders DESC;
   columns, then insert.
 * `File → Bulk Export…` walks every selected table and writes one file per table into a directory you choose.
 * `📊` opens the visualizer for the loaded rows. Pick a chart type (bar, line, pie, histogram, scatter),
-  an X column and a numeric Y column. Charts are rendered through the Qt5Agg matplotlib backend, so this
-  panel needs a working matplotlib/Qt binding.
+  an X column and a Y column.
 
 ### Backups
 
@@ -269,45 +235,45 @@ back. Both are plain file copies, so back up a database that no transaction is c
 | `Ctrl+O` | Connect to database |
 | `Ctrl+E` | Open the SQL console |
 | `Ctrl+H` | Open the query manager |
-| `F5` | Execute the statement in the SQL console; Refresh via the View menu |
+| `F5` | Execute the statement in the SQL console; refresh via the View menu |
 | `Ctrl+Q` | Quit |
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-
-
 <!-- ROADMAP -->
 ## Roadmap
 
-Shipped in v1.0.0 and present in this tree:
+Shipped and present in this tree:
 
 - [x] Schema tree, tabbed table workspace, inline editing and multi-row delete
 - [x] SQL console with `EXPLAIN QUERY PLAN`, history and favourites
 - [x] CSV/JSON export, CSV/JSON import with column mapping, multi-table bulk export
 - [x] Matplotlib charts, backup/restore, light and dark themes, session restore
 
-Not finished or not started, from what the code actually contains:
+Known gaps in the current code:
 
-- [ ] Charting is wired to the matplotlib `Qt5Agg` backend while the UI is PyQt6, so the visualizer needs
-      that binding sorted out before it is reliable
-- [ ] The schema tree lists tables only — views, indexes and triggers are not shown yet
-- [ ] `pycryptodome` is a declared dependency but nothing imports it; either the encryption feature it was
-      meant for is still missing, or the dependency should be dropped
+- [ ] Charting uses the matplotlib `Qt5Agg` backend while the UI is PyQt6; confirm a working binding
+      before relying on the visualizer
+- [ ] The schema tree lists tables only. `SchemaManager` already has helpers for views, indexes and
+      triggers, but the tree does not surface them
+- [ ] `pycryptodome` is a declared dependency but nothing imports it; either finish the feature it was
+      meant for or drop the dependency
 - [ ] Packaging script is x86_64 Linux only; no Windows or macOS build
+- [ ] No automated tests
 
-See the [open issues](https://github.com/Elouahabi-Naoufal/dbgui/issues) for a full list of proposed features (and known issues).
+See the [open issues](https://github.com/Elouahabi-Naoufal/SQLiteExplorer/issues) for a full list of
+proposed features and known issues.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
 
 <!-- CONTRIBUTING -->
 ## Contributing
 
-Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+Contributions are what make the open source community such an amazing place to learn, inspire, and create.
+Any contributions you make are **greatly appreciated**.
 
-If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
-Don't forget to give the project a star! Thanks again!
+If you have a suggestion that would make this better, please fork the repo and create a pull request. You
+can also simply open an issue with the tag "enhancement". Don't forget to give the project a star!
 
 1. Fork the Project
 2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
@@ -317,34 +283,27 @@ Don't forget to give the project a star! Thanks again!
 
 ### Top contributors:
 
-<a href="https://github.com/Elouahabi-Naoufal/dbgui/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=Elouahabi-Naoufal/dbgui" alt="contrib.rocks image" />
+<a href="https://github.com/Elouahabi-Naoufal/SQLiteExplorer/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=Elouahabi-Naoufal/SQLiteExplorer" alt="contrib.rocks image" />
 </a>
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-
-
 <!-- LICENSE -->
 ## License
 
-No license file is currently bundled in this repository, so the terms are still to be settled. If you
-intend to reuse or redistribute the code, open an issue about it before doing so.
+This project is not licensed — all rights reserved.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
 
 <!-- CONTACT -->
 ## Contact
 
 Naoufal Elouahabi - [LinkedIn](https://www.linkedin.com/in/elouahabi-naoufal/) - elouahabi-naoufal1@gmail.com
 
-Project Link: [https://github.com/Elouahabi-Naoufal/dbgui](https://github.com/Elouahabi-Naoufal/dbgui)
+Project Link: [https://github.com/Elouahabi-Naoufal/SQLiteExplorer](https://github.com/Elouahabi-Naoufal/SQLiteExplorer)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
 
 <!-- ACKNOWLEDGMENTS -->
 ## Acknowledgments
@@ -358,21 +317,18 @@ Project Link: [https://github.com/Elouahabi-Naoufal/dbgui](https://github.com/El
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-
-
-
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[contributors-shield]: https://img.shields.io/github/contributors/Elouahabi-Naoufal/dbgui.svg?style=for-the-badge
-[contributors-url]: https://github.com/Elouahabi-Naoufal/dbgui/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/Elouahabi-Naoufal/dbgui.svg?style=for-the-badge
-[forks-url]: https://github.com/Elouahabi-Naoufal/dbgui/network/members
-[stars-shield]: https://img.shields.io/github/stars/Elouahabi-Naoufal/dbgui.svg?style=for-the-badge
-[stars-url]: https://github.com/Elouahabi-Naoufal/dbgui/stargazers
-[issues-shield]: https://img.shields.io/github/issues/Elouahabi-Naoufal/dbgui.svg?style=for-the-badge
-[issues-url]: https://github.com/Elouahabi-Naoufal/dbgui/issues
-[license-shield]: https://img.shields.io/badge/license-see%20repository-informational?style=for-the-badge
-[license-url]: https://github.com/Elouahabi-Naoufal/dbgui
+[contributors-shield]: https://img.shields.io/github/contributors/Elouahabi-Naoufal/SQLiteExplorer.svg?style=for-the-badge
+[contributors-url]: https://github.com/Elouahabi-Naoufal/SQLiteExplorer/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/Elouahabi-Naoufal/SQLiteExplorer.svg?style=for-the-badge
+[forks-url]: https://github.com/Elouahabi-Naoufal/SQLiteExplorer/network/members
+[stars-shield]: https://img.shields.io/github/stars/Elouahabi-Naoufal/SQLiteExplorer.svg?style=for-the-badge
+[stars-url]: https://github.com/Elouahabi-Naoufal/SQLiteExplorer/stargazers
+[issues-shield]: https://img.shields.io/github/issues/Elouahabi-Naoufal/SQLiteExplorer.svg?style=for-the-badge
+[issues-url]: https://github.com/Elouahabi-Naoufal/SQLiteExplorer/issues
+[license-shield]: https://img.shields.io/badge/license-unlicensed-lightgrey?style=for-the-badge
+[license-url]: https://github.com/Elouahabi-Naoufal/SQLiteExplorer
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://www.linkedin.com/in/elouahabi-naoufal/
 [Python.com]: https://img.shields.io/badge/python-3776AB?style=for-the-badge&logo=python&logoColor=white
