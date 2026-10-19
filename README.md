@@ -1,296 +1,391 @@
-# SQLite Manager - Professional Database Management Tool
+<!-- Improved compatibility of back to top link: See: https://github.com/othneildrew/Best-README-Template/pull/73 -->
+<a id="readme-top"></a>
 
-A comprehensive desktop application for managing SQLite databases with complete CRUD operations, advanced features, and an intuitive GUI interface.
 
-![SQLite Manager](resources/sqlite_manager.png)
 
-## 🚀 Features
 
-### Core Database Operations
-- **Connection Management**: Connect to SQLite/SQLCipher databases with encryption support
-- **Schema Management**: Create, modify, and drop tables, indexes, views, and triggers
-- **Data Operations**: Full CRUD operations with batch processing capabilities
-- **Transaction Control**: Manual and automatic transaction management
-- **Query Execution**: Execute custom SQL with syntax validation and history
+<!-- PROJECT SHIELDS -->
+<!--
+*** I'm using markdown "reference style" links for readability.
+*** Reference links are enclosed in brackets [ ] instead of parentheses ( ).
+*** See the bottom of this document for the declaration of the reference variables
+*** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
+*** https://www.markdownguide.org/basic-syntax/#reference-style-links
+-->
+[![Contributors][contributors-shield]][contributors-url]
+[![Forks][forks-shield]][forks-url]
+[![Stargazers][stars-shield]][stars-url]
+[![Issues][issues-shield]][issues-url]
+[![License][license-shield]][license-url]
+[![LinkedIn][linkedin-shield]][linkedin-url]
 
-### Advanced Features
-- **Multi-Record Selection**: Select and delete multiple records simultaneously
-- **Data Visualization**: Generate charts (bar, line, pie, histogram, scatter plots)
-- **Import/Export**: CSV and JSON support with column mapping
-- **Query Manager**: Save favorite queries and track execution history
-- **Backup/Restore**: Complete database backup and restoration
-- **Theme Support**: Dark and light themes with smooth transitions
 
-### User Interface
-- **Split View Layout**: Schema tree on left, data tables on right
-- **Multi-Tab Interface**: Open multiple tables simultaneously
-- **Pagination**: Handle large datasets efficiently
-- **Search & Filter**: Real-time data filtering and search
-- **Context Menus**: Right-click operations throughout the interface
-- **Keyboard Shortcuts**: Quick access to common operations
 
-## 📋 Requirements
 
-### System Requirements
-- Python 3.8 or higher
-- Linux/macOS/Windows
-- 512MB RAM minimum
-- 100MB disk space
+<!-- PROJECT LOGO -->
+<br />
+<div align="center">
+  <a href="https://github.com/Elouahabi-Naoufal/dbgui">
+    <img src="resources/sqlite_manager.png" alt="SQLite Manager logo" width="80" height="80">
+  </a>
 
-### Python Dependencies
-```bash
-PyQt6 >= 6.4.0
-pycryptodome >= 3.17.0
-matplotlib >= 3.5.0
-pandas >= 1.3.0
-Pillow >= 9.0.0
+  <h3 align="center">SQLite Manager</h3>
+
+  <p align="center">
+    A PyQt6 desktop client for browsing and editing SQLite files, with a SQL console,
+    charting, CSV/JSON transfer and SQLCipher support.
+    <br />
+    <a href="https://github.com/Elouahabi-Naoufal/dbgui"><strong>Read the source »</strong></a>
+    <br />
+    <br />
+    <a href="https://github.com/Elouahabi-Naoufal/dbgui/issues">Report Bug</a>
+    &middot;
+    <a href="https://github.com/Elouahabi-Naoufal/dbgui/issues">Request Feature</a>
+  </p>
+</div>
+
+
+
+
+<!-- TABLE OF CONTENTS -->
+<details>
+  <summary>Table of Contents</summary>
+  <ol>
+    <li>
+      <a href="#about-the-project">About The Project</a>
+      <ul>
+        <li><a href="#built-with">Built With</a></li>
+      </ul>
+    </li>
+    <li>
+      <a href="#getting-started">Getting Started</a>
+      <ul>
+        <li><a href="#prerequisites">Prerequisites</a></li>
+        <li><a href="#installation">Installation</a></li>
+      </ul>
+    </li>
+    <li><a href="#usage">Usage</a></li>
+    <li><a href="#roadmap">Roadmap</a></li>
+    <li><a href="#contributing">Contributing</a></li>
+    <li><a href="#license">License</a></li>
+    <li><a href="#contact">Contact</a></li>
+    <li><a href="#acknowledgments">Acknowledgments</a></li>
+  </ol>
+</details>
+
+
+
+
+<!-- ABOUT THE PROJECT -->
+## About The Project
+
+SQLite Manager is a cross-platform desktop front end for SQLite database files, written in Python
+with PyQt6. It opens a `.sqlite`/`.db` file directly from disk — there is no server, no daemon and
+no configuration file.
+
+The window is a split view: a schema tree on the left, a tabbed data workspace on the right. Clicking a
+table opens it in its own tab, so several tables can stay open side by side.
+
+What it does:
+
+* **Schema navigation** — table tree loaded from `sqlite_master`, refreshed on demand.
+* **Record editing** — inline cell editing plus a record editor dialog that renders a widget per declared
+  column type. Deletion works on the current selection, so a multi-row selection deletes in one pass.
+* **SQL console** — run `SELECT`, DML and DDL, inspect results in a grid, or ask SQLite for
+  `EXPLAIN QUERY PLAN` output.
+* **Query manager** — executed statements are appended to a history file (capped at 100 entries) and any
+  statement can be starred into a named favourites list.
+* **Pagination** — records are fetched with `LIMIT`/`OFFSET`; page size is adjustable from 10 to 1000.
+* **Search and filter** — a `LIKE` search across either all `TEXT`/`VARCHAR` columns or one selected column,
+  applied server-side rather than in the widget.
+* **Import / export** — export the visible page to CSV or JSON, import a CSV/JSON file with an explicit
+  column mapping and a preview step, or run a bulk export of several tables into one output directory.
+* **Charts** — bar, line, pie, histogram and scatter plots built with matplotlib over the loaded rows,
+  with X/Y column pickers limited to numeric columns.
+* **Backup and restore** — file-level copy of the open database to and from a chosen path.
+* **Encrypted files** — if `pysqlcipher3` is installed and a password is supplied, the connection is opened
+  through SQLCipher instead of the stdlib driver.
+* **Theming** — light and dark stylesheets; the system palette lightness is read at startup to pick the default.
+
+Everything is local-first: no telemetry, no network calls, no account. State that outlives a run is written
+next to the working directory as plain JSON (`session.json`, `query_history.json`, `query_favorites.json`),
+and logs go to `~/sqlite_manager.log`.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+
+### Built With
+
+* [![Python][Python.com]][Python-url]
+* [![PyQt6][PyQt6.com]][PyQt6-url]
+* [![SQLite][SQLite.com]][SQLite-url]
+* [![SQLCipher][SQLCipher.com]][SQLCipher-url]
+* [![Matplotlib][Matplotlib.com]][Matplotlib-url]
+* [![pandas][pandas.com]][pandas-url]
+* [![PyInstaller][PyInstaller.com]][PyInstaller-url]
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+
+<!-- GETTING STARTED -->
+## Getting Started
+
+To run SQLite Manager from source you need a Python interpreter and the five dependencies pinned in
+`requirements.txt`.
+
+### Prerequisites
+
+* Python 3.9 or newer. The code uses PEP 585 builtin generics (`tuple[bool, str]`) in annotations.
+* The Qt 6 runtime libraries shipped with the PyQt6 wheels — on Debian/Ubuntu these are pulled in as
+  `libegl1` and `libxkbcommon-x11-0`; the AppImage bundles its own.
+* Linux, macOS or Windows.
+
+`pysqlcipher3` is optional. Without it, encrypted databases cannot be opened; everything else works.
+If its wheel does not exist for your platform you may need a working C toolchain to build it:
+
+```sh
+sudo apt install build-essential libsqlcipher-dev   # Debian/Ubuntu, only for pysqlcipher3
 ```
 
-## 🛠️ Installation
+### Installation
 
-### Quick Install
-```bash
-# Clone or download the application
-cd dbgui
+1. Clone the repository
 
-# Install dependencies
-pip install -r requirements.txt
+   ```sh
+   git clone https://github.com/Elouahabi-Naoufal/dbgui.git
+   cd dbgui
+   ```
 
-# Run the application
-python3 main.py
+2. Create a virtual environment and install the dependencies
+
+   ```sh
+   python3 -m venv venv
+   source venv/bin/activate          # Windows: venv\Scripts\activate
+   pip install -r requirements.txt
+   ```
+
+3. Launch the application
+
+   ```sh
+   python3 main.py
+   ```
+
+4. Point git at your own fork before committing, so an accidental push does not land upstream
+
+   ```sh
+   git remote set-url origin https://github.com/Elouahabi-Naoufal/dbgui.git
+   git remote -v # confirm the changes
+   ```
+
+<details>
+<summary>Build a Linux AppImage</summary>
+
+`create_appimage.sh` produces a self-contained binary: it creates a throwaway virtualenv, freezes
+`main.py` with PyInstaller, assembles an AppDir with a desktop entry and `AppRun`, then packs it with
+`appimagetool`. Output: `SQLite-Manager-1.0.0-x86_64.AppImage`. The script downloads `appimagetool`
+itself if the copy in the repo root is missing.
+
+```sh
+chmod +x create_appimage.sh
+./create_appimage.sh
 ```
 
-### Desktop Integration (Linux)
-```bash
-# Make desktop file executable
-chmod +x sqlite-manager.desktop
+The generated `.desktop` file and the one checked into the repo both run
+`/opt/SQLite-Manager-1.0.0-x86_64.AppImage`, so edit the `Exec=` line if you install the AppImage
+somewhere else:
 
-# Install to applications menu
+```sh
+sudo cp SQLite-Manager-1.0.0-x86_64.AppImage /opt/
+sudo cp resources/sqlite_manager.png ~/.local/share/icons/hicolor/256x256/apps/sqlite-manager.png
 cp sqlite-manager.desktop ~/.local/share/applications/
-
-# Update desktop database
 update-desktop-database ~/.local/share/applications/
 ```
 
-## 🎯 Usage Guide
+</details>
 
-### Getting Started
-1. **Launch Application**: Run `python3 main.py` or use desktop shortcut
-2. **Connect Database**: File → Connect to Database (Ctrl+O)
-3. **Browse Schema**: Explore tables, views, and indexes in left panel
-4. **View Data**: Double-click any table to open in new tab
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-### Basic Operations
 
-#### Managing Records
-- **Add Record**: Click ➕ button or press Ctrl+N
-- **Edit Record**: Double-click row or click ✏️ button
-- **Delete Records**: 
-  - Select single record and click 🗑️
-  - Select multiple records (Ctrl+click) and delete all at once
-- **Search Data**: Use search box to filter records
 
-#### SQL Operations
-- **Execute SQL**: Edit → Execute SQL (Ctrl+E)
-- **View History**: Edit → Query Manager (Ctrl+H)
-- **Save Queries**: Mark frequently used queries as favorites
+<!-- USAGE EXAMPLES -->
+## Usage
 
-#### Data Management
-- **Export Data**: Click 📤 button, choose CSV or JSON format
-- **Import Data**: Click 📥 button, map columns and import
-- **Visualize Data**: Click 📊 button to generate charts
+### Connect and browse
 
-### Advanced Features
+`File → Connect to Database…` (`Ctrl+O`) opens the connection dialog. Browse for a file, tick
+*Use encryption* to supply a SQLCipher password, or double-click one of the recently opened databases.
+The driver tries plain `sqlite3` first and only falls back to SQLCipher if that fails or a password was
+given. Foreign keys are enabled with `PRAGMA foreign_keys = ON` on every connection.
 
-#### Multi-Record Operations
-```
-1. Hold Ctrl and click multiple rows to select
-2. Or hold Shift and click to select range
-3. Click delete button to remove all selected records
-4. Confirm deletion in dialog
-```
+Click a table in the left tree to open it. The tab loads the schema, then the first page of records.
 
-#### Query Management
+### Edit data
+
+* Click any cell and type — the change is written straight to the database on commit. Updates are keyed on
+  the primary key when the table has one; for keyless tables every column is matched.
+* `➕` opens the record editor dialog for a new row, `✏️` re-opens it for the selected row with the
+  current values loaded.
+* `🗑️` deletes every selected row after a confirmation prompt. The widget is in extended-selection mode,
+  so `Ctrl`/`Shift`-click multi-row selections work.
+
+### Run SQL
+
+`Edit → Execute SQL…` (`Ctrl+E`) opens the console. `F5` executes, and *Explain Query Plan* returns
+SQLite's own plan output for the statement under the cursor. Results render in a grid; DML and DDL report
+rows affected. Saved statements are managed from `Edit → Query Manager…` (`Ctrl+H`), which has a History
+tab and a Favorites tab — favorites take a name and an optional description.
+
 ```sql
--- Save complex queries for reuse
-SELECT customers.name, COUNT(orders.id) as order_count
-FROM customers 
-LEFT JOIN orders ON customers.id = orders.customer_id
-GROUP BY customers.id
-ORDER BY order_count DESC;
+-- Run this from the SQL console (Ctrl+E, then F5)
+SELECT c.name AS customer,
+       COUNT(o.id) AS orders
+FROM customers AS c
+LEFT JOIN orders AS o ON o.customer_id = c.id
+GROUP BY c.id
+ORDER BY orders DESC;
 ```
 
-#### Data Visualization
-- Select numeric columns for charts
-- Choose from 5 chart types
-- Interactive plots with zoom and pan
-- Export visualizations as images
+### Move data in and out
 
-## 🏗️ Project Structure
+* `📤` exports the rows currently loaded in the tab. Choose `.csv` or `.json` in the save dialog.
+* `📥` opens Bulk Import: pick a CSV or JSON file, review the preview, map source columns to table
+  columns, then insert.
+* `File → Bulk Export…` walks every selected table and writes one file per table into a directory you choose.
+* `📊` opens the visualizer for the loaded rows. Pick a chart type (bar, line, pie, histogram, scatter),
+  an X column and a numeric Y column. Charts are rendered through the Qt5Agg matplotlib backend, so this
+  panel needs a working matplotlib/Qt binding.
 
-```
-dbgui/
-├── main.py                     # Application entry point
-├── requirements.txt            # Python dependencies
-├── sqlite-manager.desktop      # Desktop integration file
-├── create_icon.py             # Icon generation script
-├── db/                        # Database operations
-│   ├── connection.py          # Connection management
-│   ├── operations.py          # CRUD operations
-│   ├── queries.py            # Query execution
-│   └── schema.py             # Schema management
-├── ui/                        # User interface
-│   ├── main_window.py        # Main application window
-│   ├── table_view.py         # Data table display
-│   ├── data_visualizer.py    # Chart generation
-│   └── dialogs/              # Dialog windows
-│       ├── connection_dialog.py
-│       ├── sql_executor.py
-│       ├── record_editor.py
-│       ├── query_manager_dialog.py
-│       ├── bulk_import_dialog.py
-│       └── table_editor.py
-├── utils/                     # Utility modules
-│   ├── backup.py             # Backup operations
-│   ├── export.py             # Import/export
-│   ├── logger.py             # Logging system
-│   ├── query_manager.py      # Query management
-│   ├── session.py            # Session persistence
-│   └── theme.py              # Theme management
-└── resources/                 # Application resources
-    ├── sqlite_manager.png     # Application icon
-    └── styles.qss            # Stylesheets
-```
+### Backups
 
-## ⌨️ Keyboard Shortcuts
+`File → Backup Database…` copies the open file to a path you choose; `File → Restore Database…` copies it
+back. Both are plain file copies, so back up a database that no transaction is currently writing to.
+
+### Keyboard shortcuts
 
 | Shortcut | Action |
 |----------|--------|
-| Ctrl+O | Connect to Database |
-| Ctrl+N | Add New Record |
-| Ctrl+E | Execute SQL |
-| Ctrl+H | Query Manager |
-| Ctrl+R | Refresh Data |
-| Ctrl+F | Search/Filter |
-| Delete | Delete Selected Records |
-| F5 | Refresh Current View |
-| Ctrl+T | New Tab |
-| Ctrl+W | Close Tab |
+| `Ctrl+O` | Connect to database |
+| `Ctrl+E` | Open the SQL console |
+| `Ctrl+H` | Open the query manager |
+| `F5` | Execute the statement in the SQL console; Refresh via the View menu |
+| `Ctrl+Q` | Quit |
 
-## 🎨 Themes
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-The application supports multiple themes:
-- **Light Theme**: Clean, professional appearance
-- **Dark Theme**: Easy on the eyes for extended use
-- **Auto Theme**: Follows system preferences
 
-Switch themes via: View → Themes
 
-## 🔧 Configuration
+<!-- ROADMAP -->
+## Roadmap
 
-### Database Settings
-- **Connection Timeout**: Configurable timeout for database operations
-- **Page Size**: Adjust pagination size (10-1000 records)
-- **Auto-commit**: Enable/disable automatic transaction commits
+Shipped in v1.0.0 and present in this tree:
 
-### UI Preferences
-- **Theme Selection**: Light, dark, or auto
-- **Font Size**: Adjustable interface font size
-- **Column Width**: Auto-resize or manual column sizing
+- [x] Schema tree, tabbed table workspace, inline editing and multi-row delete
+- [x] SQL console with `EXPLAIN QUERY PLAN`, history and favourites
+- [x] CSV/JSON export, CSV/JSON import with column mapping, multi-table bulk export
+- [x] Matplotlib charts, backup/restore, light and dark themes, session restore
 
-## 📊 Supported Data Types
+Not finished or not started, from what the code actually contains:
 
-| SQLite Type | Display | Input Validation |
-|-------------|---------|------------------|
-| INTEGER | Number | Numeric validation |
-| REAL | Decimal | Float validation |
-| TEXT | String | Length limits |
-| BLOB | Binary | File upload |
-| BOOLEAN | Checkbox | True/False |
-| DATE | Date picker | Date format |
-| DATETIME | DateTime picker | Timestamp format |
+- [ ] Charting is wired to the matplotlib `Qt5Agg` backend while the UI is PyQt6, so the visualizer needs
+      that binding sorted out before it is reliable
+- [ ] The schema tree lists tables only — views, indexes and triggers are not shown yet
+- [ ] `pycryptodome` is a declared dependency but nothing imports it; either the encryption feature it was
+      meant for is still missing, or the dependency should be dropped
+- [ ] Packaging script is x86_64 Linux only; no Windows or macOS build
 
-## 🔒 Security Features
+See the [open issues](https://github.com/Elouahabi-Naoufal/dbgui/issues) for a full list of proposed features (and known issues).
 
-- **SQLCipher Support**: Encrypted database connections
-- **Input Validation**: SQL injection prevention
-- **Transaction Safety**: Automatic rollback on errors
-- **Backup Encryption**: Optional backup encryption
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-## 🐛 Troubleshooting
 
-### Common Issues
 
-**Connection Failed**
-```
-- Check file permissions
-- Verify database file exists
-- Ensure SQLite version compatibility
-```
+<!-- CONTRIBUTING -->
+## Contributing
 
-**Import Errors**
-```
-- Validate CSV format
-- Check column mapping
-- Verify data types match schema
-```
+Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
 
-**Performance Issues**
-```
-- Reduce page size for large tables
-- Add indexes for frequently queried columns
-- Use VACUUM to optimize database
-```
+If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
+Don't forget to give the project a star! Thanks again!
 
-### Log Files
-Application logs are stored in `sqlite_manager.log` with detailed error information.
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-## 🤝 Contributing
+### Top contributors:
 
-### Development Setup
-```bash
-# Clone repository
-git clone <repository-url>
-cd dbgui
+<a href="https://github.com/Elouahabi-Naoufal/dbgui/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=Elouahabi-Naoufal/dbgui" alt="contrib.rocks image" />
+</a>
 
-# Create virtual environment
-python3 -m venv venv
-source venv/bin/activate
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-# Install dependencies
-pip install -r requirements.txt
 
-# Run in development mode
-python3 main.py
-```
 
-### Code Style
-- Follow PEP 8 guidelines
-- Use type hints
-- Write comprehensive docstrings
-- Maintain modular architecture
+<!-- LICENSE -->
+## License
 
-## 📄 License
+No license file is currently bundled in this repository, so the terms are still to be settled. If you
+intend to reuse or redistribute the code, open an issue about it before doing so.
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-## 🆘 Support
 
-For issues, feature requests, or questions:
-1. Check the troubleshooting section
-2. Review application logs
-3. Create an issue in the project repository
 
-## 🔄 Version History
+<!-- CONTACT -->
+## Contact
 
-### v1.0.0
-- Initial release with core functionality
-- Multi-record selection and deletion
-- Data visualization capabilities
-- Query management system
-- Theme support
-- Import/export functionality
+Naoufal Elouahabi - [LinkedIn](https://www.linkedin.com/in/elouahabi-naoufal/) - elouahabi-naoufal1@gmail.com
 
----
+Project Link: [https://github.com/Elouahabi-Naoufal/dbgui](https://github.com/Elouahabi-Naoufal/dbgui)
 
-**SQLite Manager** - Making database management simple and powerful.
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+
+<!-- ACKNOWLEDGMENTS -->
+## Acknowledgments
+
+* [SQLite](https://www.sqlite.org/) and [SQLCipher](https://www.zetetic.net/sqlcipher/)
+* [PyQt6 / Riverbank Computing](https://www.riverbankcomputing.com/software/pyqt/)
+* [PyInstaller](https://pyinstaller.org/)
+* [AppImageKit](https://github.com/AppImage/AppImageKit)
+* [Img Shields](https://shields.io)
+* [Choose an Open Source License](https://choosealicense.com)
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+
+
+<!-- MARKDOWN LINKS & IMAGES -->
+<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+[contributors-shield]: https://img.shields.io/github/contributors/Elouahabi-Naoufal/dbgui.svg?style=for-the-badge
+[contributors-url]: https://github.com/Elouahabi-Naoufal/dbgui/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/Elouahabi-Naoufal/dbgui.svg?style=for-the-badge
+[forks-url]: https://github.com/Elouahabi-Naoufal/dbgui/network/members
+[stars-shield]: https://img.shields.io/github/stars/Elouahabi-Naoufal/dbgui.svg?style=for-the-badge
+[stars-url]: https://github.com/Elouahabi-Naoufal/dbgui/stargazers
+[issues-shield]: https://img.shields.io/github/issues/Elouahabi-Naoufal/dbgui.svg?style=for-the-badge
+[issues-url]: https://github.com/Elouahabi-Naoufal/dbgui/issues
+[license-shield]: https://img.shields.io/badge/license-see%20repository-informational?style=for-the-badge
+[license-url]: https://github.com/Elouahabi-Naoufal/dbgui
+[linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
+[linkedin-url]: https://www.linkedin.com/in/elouahabi-naoufal/
+[Python.com]: https://img.shields.io/badge/python-3776AB?style=for-the-badge&logo=python&logoColor=white
+[Python-url]: https://www.python.org/
+[PyQt6.com]: https://img.shields.io/badge/PyQt6-2C7BB4?style=for-the-badge&logo=qt&logoColor=white
+[PyQt6-url]: https://www.riverbankcomputing.com/software/pyqt/
+[SQLite.com]: https://img.shields.io/badge/SQLite-003B57?style=for-the-badge&logo=sqlite&logoColor=white
+[SQLite-url]: https://www.sqlite.org/
+[SQLCipher.com]: https://img.shields.io/badge/SQLCipher-0F80C0?style=for-the-badge
+[SQLCipher-url]: https://www.zetetic.net/sqlcipher/
+[Matplotlib.com]: https://img.shields.io/badge/matplotlib-11557C?style=for-the-badge&logo=python&logoColor=white
+[Matplotlib-url]: https://matplotlib.org/
+[pandas.com]: https://img.shields.io/badge/pandas-150458?style=for-the-badge&logo=pandas&logoColor=white
+[pandas-url]: https://pandas.pydata.org/
+[PyInstaller.com]: https://img.shields.io/badge/PyInstaller-3C1387?style=for-the-badge
+[PyInstaller-url]: https://pyinstaller.org/
